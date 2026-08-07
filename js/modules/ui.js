@@ -373,6 +373,7 @@ export function setupSignatureCanvas(tipo) {
   const canvas = document.getElementById(`assinatura-${tipo}`);
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
+  const lockCheckbox = document.getElementById(`lock-${tipo}`);
 
   let isDrawing = false;
   let lastX = 0;
@@ -382,6 +383,24 @@ export function setupSignatureCanvas(tipo) {
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
   ctx.strokeStyle = "#000";
+
+  function updateLockState() {
+    const isLocked = lockCheckbox ? lockCheckbox.checked : true;
+    if (isLocked) {
+      canvas.style.touchAction = "auto";
+      canvas.style.pointerEvents = "none";
+      canvas.classList.add("opacity-75");
+    } else {
+      canvas.style.touchAction = "none";
+      canvas.style.pointerEvents = "auto";
+      canvas.classList.remove("opacity-75");
+    }
+  }
+
+  if (lockCheckbox) {
+    lockCheckbox.addEventListener("change", updateLockState);
+    updateLockState();
+  }
 
   function getPos(e) {
     const rect = canvas.getBoundingClientRect();
@@ -394,7 +413,7 @@ export function setupSignatureCanvas(tipo) {
   }
 
   function start(e) {
-    const isLocked = document.getElementById(`lock-${tipo}`)?.checked;
+    const isLocked = lockCheckbox ? lockCheckbox.checked : false;
     if (isLocked) return;
 
     isDrawing = true;
@@ -404,7 +423,8 @@ export function setupSignatureCanvas(tipo) {
   }
 
   function draw(e) {
-    if (!isDrawing) return;
+    const isLocked = lockCheckbox ? lockCheckbox.checked : false;
+    if (isLocked || !isDrawing) return;
     if (e.type === "touchmove") e.preventDefault();
 
     const pos = getPos(e);
@@ -428,12 +448,12 @@ export function setupSignatureCanvas(tipo) {
   canvas.addEventListener("mouseup", stop);
   canvas.addEventListener("mouseout", stop);
 
-  canvas.addEventListener("touchstart", start, { passive: false });
+  canvas.addEventListener("touchstart", start, { passive: true });
   canvas.addEventListener("touchmove", draw, { passive: false });
   canvas.addEventListener("touchend", stop);
 
   document.getElementById(`limpar-${tipo}`)?.addEventListener("click", () => {
-    const isLocked = document.getElementById(`lock-${tipo}`)?.checked;
+    const isLocked = lockCheckbox ? lockCheckbox.checked : false;
     if (isLocked) {
       showNotification("Desmarque o bloqueio para limpar a assinatura", "warning");
       return;
@@ -632,6 +652,14 @@ function setupFormEventListeners() {
 
     document.querySelectorAll("input, select, textarea").forEach((el) => {
       if (el.id !== "toggle-auto-sync-btn") el.value = "";
+    });
+
+    ["cliente", "tecnico"].forEach((tipo) => {
+      const lockCb = document.getElementById(`lock-${tipo}`);
+      if (lockCb) {
+        lockCb.checked = true;
+        lockCb.dispatchEvent(new Event("change"));
+      }
     });
 
     renderMateriais();

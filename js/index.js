@@ -413,6 +413,26 @@ function setupEventListeners() {
 
 // ======== Configuração Canvas ========
 function setupSignatureCanvas(canvas, ctx, tipo) {
+  const lockCheckbox = document.getElementById(`lock-${tipo}`);
+
+  function updateLockState() {
+    const isLocked = lockCheckbox ? lockCheckbox.checked : true;
+    if (isLocked) {
+      canvas.style.touchAction = "auto";
+      canvas.style.pointerEvents = "none";
+      canvas.classList.add("opacity-75");
+    } else {
+      canvas.style.touchAction = "none";
+      canvas.style.pointerEvents = "auto";
+      canvas.classList.remove("opacity-75");
+    }
+  }
+
+  if (lockCheckbox) {
+    lockCheckbox.addEventListener("change", updateLockState);
+    updateLockState();
+  }
+
   function getMousePos(e) {
     const rect = canvas.getBoundingClientRect();
     return {
@@ -464,7 +484,7 @@ function setupSignatureCanvas(canvas, ctx, tipo) {
   }
 
   canvas.addEventListener("mousedown", (e) => {
-    const isLocked = document.getElementById(`lock-${tipo}`).checked;
+    const isLocked = lockCheckbox ? lockCheckbox.checked : false;
     if (isLocked) return;
 
     if (tipo === "cliente") {
@@ -496,10 +516,9 @@ function setupSignatureCanvas(canvas, ctx, tipo) {
   });
 
   canvas.addEventListener("touchstart", (e) => {
-    const isLocked = document.getElementById(`lock-${tipo}`).checked;
+    const isLocked = lockCheckbox ? lockCheckbox.checked : false;
     if (isLocked) return;
 
-    e.preventDefault();
     if (tipo === "cliente") {
       isDrawingCliente = true;
       const pos = getTouchPos(e);
@@ -511,13 +530,16 @@ function setupSignatureCanvas(canvas, ctx, tipo) {
       lastXTecnico = pos.x;
       lastYTecnico = pos.y;
     }
-  });
+  }, { passive: true });
 
   canvas.addEventListener("touchmove", (e) => {
+    const isLocked = lockCheckbox ? lockCheckbox.checked : false;
+    if (isLocked) return;
+
     e.preventDefault();
     const pos = getTouchPos(e);
     draw(pos.x, pos.y, tipo === "cliente");
-  });
+  }, { passive: false });
 
   canvas.addEventListener("touchend", () => {
     if (tipo === "cliente") isDrawingCliente = false;

@@ -363,6 +363,30 @@
     <section class="pe-card mb-6">
       <div class="pe-card-header">
         <h2 class="text-lg font-semibold text-[#0F0E0D] flex items-center">
+          <i class="fas fa-boxes text-[#1B4F8A] mr-2.5"></i> Materiais & Peças Utilizadas
+        </h2>
+      </div>
+
+      <div class="pe-card-body">
+        <div class="mb-4">
+          <div class="flex flex-col sm:flex-row gap-3">
+            <input type="text" id="material-input" list="materiais-list" placeholder="Código ou nome da peça"
+              class="pe-input flex-1 pe-mono" />
+            <datalist id="materiais-list"></datalist>
+            <input type="number" id="material-qtd" min="1" placeholder="Qtd" class="pe-input w-full sm:w-28 pe-mono" />
+            <button id="add-material-btn" class="pe-btn pe-btn-primary">
+              <i class="fas fa-plus"></i> Adicionar
+            </button>
+          </div>
+        </div>
+
+        <div id="materiais-lista" class="space-y-2"></div>
+      </div>
+    </section>
+
+    <section class="pe-card mb-6">
+      <div class="pe-card-header">
+        <h2 class="text-lg font-semibold text-[#0F0E0D] flex items-center">
           <i class="fas fa-signature text-[#1B4F8A] mr-2.5"></i> Validação & Assinaturas
         </h2>
       </div>
@@ -384,7 +408,7 @@
                 <i class="fas fa-eraser"></i> Limpar Assinatura
               </button>
               <label class="inline-flex items-center cursor-pointer text-xs text-[#6B6965]">
-                <input type="checkbox" id="lock-cliente"
+                <input type="checkbox" id="lock-cliente" checked
                   class="rounded border-[#E5E7EB] text-[#1B4F8A] mr-1.5 focus:ring-[#1B4F8A]" />
                 Bloquear Assinatura
               </label>
@@ -406,37 +430,13 @@
                 <i class="fas fa-eraser"></i> Limpar Assinatura
               </button>
               <label class="inline-flex items-center cursor-pointer text-xs text-[#6B6965]">
-                <input type="checkbox" id="lock-tecnico"
+                <input type="checkbox" id="lock-tecnico" checked
                   class="rounded border-[#E5E7EB] text-[#1B4F8A] mr-1.5 focus:ring-[#1B4F8A]" />
                 Bloquear Assinatura
               </label>
             </div>
           </div>
         </div>
-      </div>
-    </section>
-
-    <section class="pe-card mb-6">
-      <div class="pe-card-header">
-        <h2 class="text-lg font-semibold text-[#0F0E0D] flex items-center">
-          <i class="fas fa-boxes text-[#1B4F8A] mr-2.5"></i> Materiais & Peças Utilizadas
-        </h2>
-      </div>
-
-      <div class="pe-card-body">
-        <div class="mb-4">
-          <div class="flex flex-col sm:flex-row gap-3">
-            <input type="text" id="material-input" list="materiais-list" placeholder="Código ou nome da peça"
-              class="pe-input flex-1 pe-mono" />
-            <datalist id="materiais-list"></datalist>
-            <input type="number" id="material-qtd" min="1" placeholder="Qtd" class="pe-input w-full sm:w-28 pe-mono" />
-            <button id="add-material-btn" class="pe-btn pe-btn-primary">
-              <i class="fas fa-plus"></i> Adicionar
-            </button>
-          </div>
-        </div>
-
-        <div id="materiais-lista" class="space-y-2"></div>
       </div>
     </section>
 

@@ -1,0 +1,1808 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Busca por Cliente</title>
+    <link rel="icon" type="image/x-icon" href="./assets/icons/favicon.ico" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: sans-serif;
+        background: #f1f5f9;
+        padding: 1rem;
+      }
+      .wrap {
+        max-width: 720px;
+        margin: 0 auto;
+      }
+
+      .card {
+        background: white;
+        border-radius: 8px;
+        padding: 1rem;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+        margin-bottom: 0.75rem;
+      }
+      h1 {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #1e293b;
+        margin-bottom: 0.25rem;
+      }
+      p.sub {
+        font-size: 0.85rem;
+        color: #64748b;
+        margin-top: 0.25rem;
+      }
+
+      .row {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      input[type="text"],
+      input[type="date"],
+      select {
+        flex: 1;
+        min-width: 150px;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        padding: 0.55rem 0.75rem;
+        font-size: 0.95rem;
+        outline: none;
+        background: #fff;
+      }
+      input[type="text"]:focus,
+      input[type="date"]:focus,
+      select:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 2px #bfdbfe;
+      }
+
+      button {
+        cursor: pointer;
+        border: none;
+        border-radius: 6px;
+        padding: 0.55rem 1rem;
+        font-size: 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .btn-blue {
+        background: #2563eb;
+        color: #fff;
+      }
+      .btn-blue:hover:not(:disabled) {
+        background: #1d4ed8;
+      }
+      .btn-green {
+        background: #16a34a;
+        color: #fff;
+      }
+      .btn-green:hover:not(:disabled) {
+        background: #15803d;
+      }
+      .btn-gray {
+        background: #e2e8f0;
+        color: #475569;
+      }
+      .btn-gray:hover:not(:disabled) {
+        background: #cbd5e1;
+      }
+      .btn-orange {
+        background: #ea580c;
+        color: #fff;
+      }
+      .btn-orange:hover:not(:disabled) {
+        background: #c2410c;
+      }
+      .btn-sm {
+        font-size: 0.8rem;
+        padding: 0.35rem 0.75rem;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      /* Filtros */
+      .filtros-wrap {
+        border-top: 1px solid #f1f5f9;
+        margin-top: 0.75rem;
+        padding-top: 0.75rem;
+      }
+      .filtros-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+      }
+      .filtro-label {
+        font-size: 0.78rem;
+        color: #475569;
+        font-weight: 600;
+        margin-bottom: 0.2rem;
+        display: block;
+      }
+      .filtro-group {
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Status do cache */
+      .cache-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #f0f9ff;
+        border: 1px solid #bae6fd;
+        border-radius: 6px;
+        padding: 0.4rem 0.75rem;
+        font-size: 0.78rem;
+        color: #0369a1;
+        margin-top: 0.6rem;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+      .cache-bar .cache-info {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+      .dot-green {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #16a34a;
+        flex-shrink: 0;
+      }
+      .dot-yellow {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #d97706;
+        flex-shrink: 0;
+      }
+
+      .rec-card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.85rem;
+        margin-bottom: 0.6rem;
+      }
+      .rec-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+      .rec-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .rec-name {
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 0.3rem;
+      }
+      .rec-detail {
+        font-size: 0.82rem;
+        color: #475569;
+        line-height: 1.7;
+      }
+      .rec-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        flex-shrink: 0;
+      }
+      .badge {
+        display: inline-block;
+        border-radius: 4px;
+        padding: 2px 7px;
+        font-size: 0.72rem;
+        font-weight: 600;
+      }
+      .badge-ok {
+        background: #d1fae5;
+        color: #065f46;
+      }
+      .badge-pend {
+        background: #fef9c3;
+        color: #92400e;
+      }
+      .details-panel {
+        margin-top: 0.75rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid #f1f5f9;
+        font-size: 0.82rem;
+        color: #374151;
+      }
+      pre {
+        white-space: pre-wrap;
+        word-break: break-word;
+        background: #f8fafc;
+        border-radius: 4px;
+        padding: 0.5rem;
+        margin-top: 0.25rem;
+        font-size: 0.78rem;
+      }
+
+      .progress-wrap {
+        margin-top: 0.5rem;
+        background: #e2e8f0;
+        border-radius: 4px;
+        height: 10px;
+        overflow: hidden;
+      }
+      .progress-bar {
+        background: #2563eb;
+        height: 100%;
+        width: 0;
+        transition: width 0.3s;
+      }
+
+      .msg-box {
+        text-align: center;
+        padding: 2rem;
+        color: #64748b;
+      }
+      .msg-err {
+        color: #dc2626;
+      }
+      .header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 0.25rem;
+      }
+
+      /* Paginação */
+      .pag-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        margin: 0.75rem 0;
+        flex-wrap: wrap;
+      }
+      .pag-wrap button {
+        min-width: 36px;
+        padding: 0.4rem 0.6rem;
+        font-size: 0.82rem;
+      }
+      .pag-wrap button.ativo {
+        background: #2563eb;
+        color: #fff;
+      }
+      .pag-info {
+        font-size: 0.8rem;
+        color: #64748b;
+        text-align: center;
+        margin-bottom: 0.4rem;
+      }
+
+      /* Botão WhatsApp destacado */
+      .share-all-wrap {
+        background: #dcfce7;
+        border: 1px solid #86efac;
+        border-radius: 8px;
+        padding: 0.85rem 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      .share-all-wrap span {
+        font-size: 0.9rem;
+        color: #14532d;
+        font-weight: 600;
+      }
+      .share-all-wrap small {
+        font-size: 0.78rem;
+        color: #166534;
+        display: block;
+      }
+
+      .share-mode-info {
+        font-size: 0.75rem;
+        color: #64748b;
+        margin-top: 0.4rem;
+        padding: 0.35rem 0.6rem;
+        background: #f8fafc;
+        border-radius: 4px;
+        border-left: 3px solid #cbd5e1;
+      }
+
+      /* Toggle filtros */
+      .btn-filtros {
+        font-size: 0.82rem;
+        background: none;
+        border: 1px solid #cbd5e1;
+        color: #475569;
+        padding: 0.35rem 0.7rem;
+        border-radius: 6px;
+      }
+      .btn-filtros:hover {
+        background: #f1f5f9;
+      }
+      .filtros-ativos-badge {
+        background: #2563eb;
+        color: #fff;
+        border-radius: 10px;
+        padding: 1px 7px;
+        font-size: 0.72rem;
+        margin-left: 0.3rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="card">
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.4rem;
+          "
+        >
+          <a
+            href="index.html"
+            style="
+              text-decoration: none;
+              display: inline-flex;
+              align-items: center;
+              gap: 0.35rem;
+              padding: 0.4rem 0.8rem;
+              border-radius: 6px;
+              font-size: 0.85rem;
+              color: #475569;
+              background: #e2e8f0;
+            "
+          >
+            <i class="fas fa-arrow-left"></i> Voltar
+          </a>
+          <h1>
+            <i class="fas fa-search" style="color: #2563eb"></i> Busca por
+            Cliente
+          </h1>
+        </div>
+        <p class="sub">
+          Digite o nome do cliente para buscar fichas e relatórios no servidor
+          VPS.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="row">
+          <input
+            type="text"
+            id="inputCliente"
+            placeholder="Nome do cliente..."
+            autocomplete="off"
+          />
+          <button class="btn-blue" id="btnBuscar">
+            <i class="fas fa-search"></i> Buscar
+          </button>
+          <button class="btn-filtros" id="btnToggleFiltros">
+            <i class="fas fa-sliders-h"></i> Filtros
+            <span id="badgeFiltros" class="filtros-ativos-badge hidden">0</span>
+          </button>
+        </div>
+
+        <!-- Filtros avançados (ocultos por padrão) -->
+        <div class="filtros-wrap hidden" id="areaFiltros">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 0.25rem;
+            "
+          >
+            <strong style="font-size: 0.85rem; color: #334155"
+              ><i class="fas fa-filter" style="color: #2563eb"></i> Filtros
+              avançados</strong
+            >
+            <button class="btn-gray btn-sm" id="btnLimparFiltros">
+              Limpar filtros
+            </button>
+          </div>
+          <div class="filtros-grid">
+            <div class="filtro-group">
+              <label class="filtro-label">Status</label>
+              <select id="filtroStatus">
+                <option value="">Todos</option>
+                <option value="sinc">Sincronizado</option>
+                <option value="pend">Pendente</option>
+              </select>
+            </div>
+            <div class="filtro-group">
+              <label class="filtro-label">Data inicial (de)</label>
+              <input type="date" id="filtroDataDe" />
+            </div>
+            <div class="filtro-group">
+              <label class="filtro-label">Data inicial (até)</label>
+              <input type="date" id="filtroDataAte" />
+            </div>
+            <div class="filtro-group">
+              <label class="filtro-label">Técnico</label>
+              <select id="filtroTecnico">
+                <option value="">Todos</option>
+              </select>
+            </div>
+            <div class="filtro-group">
+              <label class="filtro-label">Cidade</label>
+              <select id="filtroCidade">
+                <option value="">Todas</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <p class="sub" style="margin-top: 0.5rem">
+          Busca parcial: "Silva" encontra todos os clientes com "Silva" no
+          nome.<br />
+          Os dados são carregados uma vez e filtrados localmente — rápido após o
+          primeiro carregamento.
+        </p>
+
+        <!-- Status do cache -->
+        <div id="cacheBar" class="cache-bar hidden">
+          <div class="cache-info">
+            <span class="dot-green" id="cacheDot"></span>
+            <span id="cacheTxt"></span>
+          </div>
+          <button
+            class="btn-orange btn-sm"
+            id="btnAtualizar"
+            title="Recarregar dados do servidor"
+          >
+            <i class="fas fa-sync-alt"></i> Atualizar
+          </button>
+        </div>
+
+        <div class="share-mode-info" id="shareModeInfo"></div>
+      </div>
+
+      <div id="areaResultados" class="hidden">
+        <div class="card">
+          <div class="share-all-wrap">
+            <div>
+              <span id="txtResumo"></span>
+              <small id="txtResumoSub"></small>
+            </div>
+            <button
+              class="btn-green"
+              id="btnTodos"
+              style="font-size: 0.95rem; padding: 0.6rem 1.2rem"
+            >
+              <i class="fab fa-whatsapp"></i> Compartilhar TUDO
+            </button>
+          </div>
+        </div>
+
+        <div class="card hidden" id="areaProgresso">
+          <div
+            id="txtProgresso"
+            style="font-size: 0.85rem; color: #334155; margin-bottom: 0.4rem"
+          >
+            Gerando PDFs…
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-bar" id="barraProgresso"></div>
+          </div>
+        </div>
+
+        <div class="pag-info hidden" id="pagInfo"></div>
+        <div id="listaRegistros"></div>
+        <div class="pag-wrap hidden" id="pagWrap"></div>
+      </div>
+
+      <div class="card msg-box hidden" id="areaVazio">
+        <i
+          class="fas fa-inbox"
+          style="font-size: 2rem; display: block; margin-bottom: 0.5rem"
+        ></i>
+        Nenhum registro encontrado.<br />
+        <small style="color: #94a3b8"
+          >Tente outros filtros ou verifique o painel de diagnóstico
+          abaixo.</small
+        >
+      </div>
+      <div class="card msg-box msg-err hidden" id="areaErro">
+        <i class="fas fa-exclamation-circle"></i>
+        <span id="txtErro"></span>
+        <div
+          style="margin-top: 0.75rem; font-size: 0.82rem; color: #64748b"
+          id="dicaErro"
+        ></div>
+      </div>
+
+      <!-- Painel de diagnóstico -->
+      <div
+        class="card hidden"
+        id="areaDiag"
+        style="border: 1px solid #fbbf24; background: #fffbeb"
+      >
+        <div style="font-weight: 600; color: #92400e; margin-bottom: 0.5rem">
+          <i class="fas fa-bug"></i> Diagnóstico do servidor
+          <button
+            onclick="
+              document.getElementById('areaDiag').classList.add('hidden')
+            "
+            style="
+              float: right;
+              background: none;
+              border: none;
+              color: #92400e;
+              cursor: pointer;
+              font-size: 0.85rem;
+            "
+          >
+            fechar ✕
+          </button>
+        </div>
+        <div
+          id="diagConteudo"
+          style="
+            font-size: 0.78rem;
+            color: #374151;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 300px;
+            overflow-y: auto;
+          "
+        ></div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { gerarFichaPDF, gerarRelatorioPDF } from "./js/modules/pdf.js";
+      import { VPS_ENDPOINTS } from "./js/modules/config.js";
+
+      var ENDPOINT_BUSCA = VPS_ENDPOINTS.LIST;
+      var LOGO_PATH = "Logo.png";
+
+      var CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutos
+      var POR_PAGINA = 20; // registros por página
+
+      /* -------------------------------------------------------
+   Cache em memória
+------------------------------------------------------- */
+      var cache = {
+        dados: null, // array com todos os registros já desempacotados
+        timestamp: null, // Date.now() do último fetch
+        valido: function () {
+          return (
+            this.dados !== null && Date.now() - this.timestamp < CACHE_TTL_MS
+          );
+        },
+        salvar: function (arr) {
+          this.dados = arr;
+          this.timestamp = Date.now();
+          atualizarBarraCache();
+        },
+        limpar: function () {
+          this.dados = null;
+          this.timestamp = null;
+        },
+      };
+
+      function atualizarBarraCache() {
+        var bar = document.getElementById("cacheBar");
+        var txt = document.getElementById("cacheTxt");
+        var dot = document.getElementById("cacheDot");
+        if (!cache.dados) {
+          bar.classList.add("hidden");
+          return;
+        }
+        bar.classList.remove("hidden");
+        var idade = Math.floor((Date.now() - cache.timestamp) / 1000);
+        var restante = Math.ceil(
+          (CACHE_TTL_MS - (Date.now() - cache.timestamp)) / 60000,
+        );
+        txt.textContent =
+          cache.dados.length +
+          " registros em cache · atualizado há " +
+          (idade < 60 ? idade + "s" : Math.floor(idade / 60) + "min") +
+          " · expira em ~" +
+          restante +
+          "min";
+        dot.className = restante > 2 ? "dot-green" : "dot-yellow";
+      }
+
+      /* -------------------------------------------------------
+   Estado global
+------------------------------------------------------- */
+      var registros = []; // resultado atual (após filtros)
+      var paginaAtual = 1;
+      var debounceTimer = null;
+
+      /* -------------------------------------------------------
+   Utilitários DOM
+------------------------------------------------------- */
+      function mostrar(id) {
+        document.getElementById(id).classList.remove("hidden");
+      }
+      function esconder(id) {
+        document.getElementById(id).classList.add("hidden");
+      }
+      function mostrarErro(msg, dica) {
+        mostrar("areaErro");
+        document.getElementById("txtErro").textContent = msg;
+        document.getElementById("dicaErro").innerHTML = dica || "";
+      }
+      function fmtDate(d) {
+        if (!d) return "-";
+        var p = d.split("-");
+        if (p.length !== 3) return d;
+        return p[2] + "/" + p[1] + "/" + p[0];
+      }
+      function setSpinner(on) {
+        var btn = document.getElementById("btnBuscar");
+        btn.disabled = on;
+        btn.innerHTML = on
+          ? '<i class="fas fa-spinner fa-spin"></i> Carregando...'
+          : '<i class="fas fa-search"></i> Buscar';
+      }
+
+      /* -------------------------------------------------------
+   Detecção de capacidade de compartilhamento nativo
+------------------------------------------------------- */
+      function detectarModoCompartilhamento() {
+        var el = document.getElementById("shareModeInfo");
+        if (navigator.share && navigator.canShare) {
+          try {
+            var testFile = new File(["x"], "test.pdf", {
+              type: "application/pdf",
+            });
+            if (navigator.canShare({ files: [testFile] })) {
+              el.innerHTML =
+                '<i class="fas fa-check-circle" style="color:#16a34a;"></i> Dispositivo suporta compartilhamento nativo de arquivos (WhatsApp direto).';
+              return;
+            }
+          } catch (e) {}
+          el.innerHTML =
+            '<i class="fas fa-info-circle" style="color:#2563eb;"></i> Compartilhamento nativo disponível, mas sem suporte a arquivos. Os PDFs serão baixados e abriremos o WhatsApp Web.';
+        } else {
+          el.innerHTML =
+            '<i class="fas fa-info-circle" style="color:#f59e0b;"></i> Navegador sem API de compartilhamento. Os PDFs serão baixados automaticamente e o WhatsApp Web será aberto.';
+        }
+      }
+
+      /* -------------------------------------------------------
+   Popular selects de filtro com base no cache
+------------------------------------------------------- */
+      function popularFiltros(todos) {
+        var tecnicos = {},
+          cidades = {};
+        todos.forEach(function (r) {
+          if (r.tecnico) tecnicos[r.tecnico.trim()] = true;
+          if (r.cidade) cidades[r.cidade.trim()] = true;
+        });
+
+        var selTec = document.getElementById("filtroTecnico");
+        var selCid = document.getElementById("filtroCidade");
+
+        // Preserva seleção atual
+        var selTecVal = selTec.value;
+        var selCidVal = selCid.value;
+
+        selTec.innerHTML = '<option value="">Todos</option>';
+        selCid.innerHTML = '<option value="">Todas</option>';
+
+        Object.keys(tecnicos)
+          .sort()
+          .forEach(function (t) {
+            var o = document.createElement("option");
+            o.value = t;
+            o.textContent = t;
+            selTec.appendChild(o);
+          });
+        Object.keys(cidades)
+          .sort()
+          .forEach(function (c) {
+            var o = document.createElement("option");
+            o.value = c;
+            o.textContent = c;
+            selCid.appendChild(o);
+          });
+
+        selTec.value = selTecVal;
+        selCid.value = selCidVal;
+      }
+
+      /* -------------------------------------------------------
+   Contar filtros ativos (exceto nome)
+------------------------------------------------------- */
+      function contarFiltrosAtivos() {
+        var n = 0;
+        if (document.getElementById("filtroStatus").value) n++;
+        if (document.getElementById("filtroDataDe").value) n++;
+        if (document.getElementById("filtroDataAte").value) n++;
+        if (document.getElementById("filtroTecnico").value) n++;
+        if (document.getElementById("filtroCidade").value) n++;
+        var badge = document.getElementById("badgeFiltros");
+        if (n > 0) {
+          badge.textContent = n;
+          badge.classList.remove("hidden");
+        } else {
+          badge.classList.add("hidden");
+        }
+        return n;
+      }
+
+      /* -------------------------------------------------------
+   1. Busca no servidor (com cache)
+------------------------------------------------------- */
+      function buscarCliente(forcarReload) {
+        var nome = document.getElementById("inputCliente").value.trim();
+
+        esconder("areaResultados");
+        esconder("areaVazio");
+        esconder("areaErro");
+        document.getElementById("listaRegistros").innerHTML = "";
+        registros = [];
+        paginaAtual = 1;
+
+        // Se cache válido e não forçando reload, filtra direto
+        if (!forcarReload && cache.valido()) {
+          aplicarFiltros(nome, cache.dados);
+          return;
+        }
+
+        // Precisa buscar no servidor
+        setSpinner(true);
+
+        fetch(ENDPOINT_BUSCA, {
+          method: "GET",
+          headers: { Accept: "application/json" },
+        })
+          .then(function (resp) {
+            if (!resp.ok) {
+              return resp.text().then(function (txt) {
+                var diagEl = document.getElementById("diagConteudo");
+                diagEl.textContent =
+                  "=== ERRO HTTP " +
+                  resp.status +
+                  " ===\nEndpoint: " +
+                  ENDPOINT_BUSCA +
+                  "\n\nCorpo:\n" +
+                  txt.substring(0, 1000);
+                mostrar("areaDiag");
+                throw new Error("Servidor HTTP " + resp.status);
+              });
+            }
+            return resp.json();
+          })
+          .then(function (dados) {
+            var raw = [];
+            if (Array.isArray(dados)) raw = dados;
+            else if (Array.isArray(dados.data)) raw = dados.data;
+            else if (Array.isArray(dados.registros)) raw = dados.registros;
+            else
+              throw new Error(
+                "Resposta inesperada: " +
+                  JSON.stringify(dados).substring(0, 200),
+              );
+
+            var todos = raw.map(function (item) {
+              var reg = item;
+
+              if (typeof reg === "string") {
+                try {
+                  reg = JSON.parse(reg);
+                } catch (e) {}
+              }
+
+              if (reg && reg.json_dados) {
+                if (typeof reg.json_dados === "string") {
+                  try {
+                    reg = JSON.parse(reg.json_dados);
+                  } catch (e) {}
+                } else if (typeof reg.json_dados === "object") {
+                  reg = Object.assign({}, reg.json_dados);
+                }
+              }
+
+              if (typeof reg === "string") {
+                try {
+                  reg = JSON.parse(reg);
+                } catch (e) {}
+              }
+
+              if (typeof reg !== "object" || reg === null) {
+                reg = { dados: reg };
+              }
+
+              if (!reg.serverId) {
+                reg.serverId = (item && typeof item === "object" ? (item.id || item.insertId) : null) || reg.id || null;
+              }
+              return reg;
+            }).filter(function (reg) {
+              var idNum = Number(reg.serverId || reg.id || 0);
+              return idNum > 700;
+            });
+
+            // Diagnóstico resumido
+            var diagEl = document.getElementById("diagConteudo");
+            var diagInfo = "=== RESPOSTA DO SERVIDOR ===\n";
+            diagInfo += "Endpoint: " + ENDPOINT_BUSCA + "\n";
+            diagInfo += "Total de registros: " + todos.length + "\n";
+            if (todos.length > 0) {
+              diagInfo +=
+                "\n=== PRIMEIRO REGISTRO ===\n" +
+                JSON.stringify(todos[0], null, 2).substring(0, 600);
+            }
+            diagEl.textContent = diagInfo;
+            mostrar("areaDiag");
+
+            // Salva no cache e popula filtros
+            cache.salvar(todos);
+            popularFiltros(todos);
+            aplicarFiltros(nome, todos);
+          })
+          .catch(function (err) {
+            var dica = "";
+            if (
+              err.message.indexOf("Failed to fetch") !== -1 ||
+              err.message.indexOf("NetworkError") !== -1
+            ) {
+              dica =
+                "Verifique se o VPS está online e se há CORS configurado para esta origem.<br>Endpoint: <code>" +
+                ENDPOINT_BUSCA +
+                "</code>";
+            }
+            mostrarErro("Erro: " + err.message, dica);
+            console.error(err);
+          })
+          .finally(function () {
+            setSpinner(false);
+            atualizarBarraCache();
+          });
+      }
+
+      /* -------------------------------------------------------
+   2. Aplicar filtros localmente (rápido — sem rede)
+------------------------------------------------------- */
+      function aplicarFiltros(nome, todos) {
+        contarFiltrosAtivos();
+
+        var q = nome ? nome.toLowerCase() : "";
+        var fStatus = document.getElementById("filtroStatus").value;
+        var fDataDe = document.getElementById("filtroDataDe").value; // YYYY-MM-DD
+        var fDataAte = document.getElementById("filtroDataAte").value;
+        var fTecnico = document.getElementById("filtroTecnico").value;
+        var fCidade = document.getElementById("filtroCidade").value;
+
+        registros = todos.filter(function (r) {
+          // Nome
+          if (q) {
+            var nomeCli = (r.cliente || r.clienteNome || "").toLowerCase();
+            if (nomeCli.indexOf(q) === -1) return false;
+          }
+          // Status
+          if (fStatus === "sinc" && !r.sincronizado) return false;
+          if (fStatus === "pend" && r.sincronizado) return false;
+          // Período
+          if (fDataDe && r.dataInicial && r.dataInicial < fDataDe) return false;
+          if (fDataAte && r.dataInicial && r.dataInicial > fDataAte)
+            return false;
+          // Técnico
+          if (fTecnico && (r.tecnico || "").trim() !== fTecnico) return false;
+          // Cidade
+          if (fCidade && (r.cidade || "").trim() !== fCidade) return false;
+
+          return true;
+        });
+
+        paginaAtual = 1;
+        if (registros.length === 0) {
+          mostrar("areaVazio");
+        } else {
+          renderizarResultados(nome || "");
+        }
+      }
+
+      /* -------------------------------------------------------
+   3. Renderizar resultados com paginação
+------------------------------------------------------- */
+      function renderizarResultados(termoBusca) {
+        mostrar("areaResultados");
+
+        var nomeExibido =
+          registros.length > 0
+            ? registros[0].cliente ||
+              registros[0].clienteNome ||
+              termoBusca ||
+              "-"
+            : termoBusca || "-";
+        var totalPDFs = registros.length * 2;
+
+        document.getElementById("txtResumo").textContent =
+          registros.length +
+          " registro(s) encontrado(s)" +
+          (termoBusca ? ' para "' + nomeExibido + '"' : "");
+        document.getElementById("txtResumoSub").textContent =
+          "Serão gerados " +
+          totalPDFs +
+          " PDFs (" +
+          registros.length +
+          " fichas + " +
+          registros.length +
+          " relatórios)";
+
+        renderizarPagina(paginaAtual);
+      }
+
+      function renderizarPagina(pag) {
+        paginaAtual = pag;
+        var total = registros.length;
+        var paginas = Math.ceil(total / POR_PAGINA);
+        var inicio = (pag - 1) * POR_PAGINA;
+        var fim = Math.min(inicio + POR_PAGINA, total);
+
+        var lista = document.getElementById("listaRegistros");
+        lista.innerHTML = "";
+
+        for (var i = inicio; i < fim; i++) {
+          lista.appendChild(criarCard(registros[i], i));
+        }
+
+        // Info de paginação
+        var info = document.getElementById("pagInfo");
+        if (total > POR_PAGINA) {
+          info.textContent =
+            "Mostrando " +
+            (inicio + 1) +
+            "–" +
+            fim +
+            " de " +
+            total +
+            " registros";
+          mostrar("pagInfo");
+          renderizarPaginacao(pag, paginas);
+        } else {
+          esconder("pagInfo");
+          esconder("pagWrap");
+        }
+      }
+
+      function renderizarPaginacao(pag, paginas) {
+        var wrap = document.getElementById("pagWrap");
+        wrap.innerHTML = "";
+        mostrar("pagWrap");
+
+        function botao(label, alvo, desabilitado, ativo) {
+          var b = document.createElement("button");
+          b.className = "btn-gray" + (ativo ? " ativo" : "");
+          b.textContent = label;
+          b.disabled = desabilitado;
+          b.addEventListener("click", function () {
+            renderizarPagina(alvo);
+            window.scrollTo(0, 0);
+          });
+          return b;
+        }
+
+        wrap.appendChild(botao("‹", pag - 1, pag === 1, false));
+
+        // Mostra no máximo 7 botões de página
+        var inicio = Math.max(1, pag - 3);
+        var fim = Math.min(paginas, inicio + 6);
+        for (var p = inicio; p <= fim; p++) {
+          wrap.appendChild(botao(p, p, false, p === pag));
+        }
+
+        wrap.appendChild(botao("›", pag + 1, pag === paginas, false));
+      }
+
+      function criarCard(reg, idx) {
+        var sincBadge = reg.sincronizado
+          ? '<span class="badge badge-ok"><i class="fas fa-check-circle"></i> Sincronizado</span>'
+          : '<span class="badge badge-pend"><i class="fas fa-clock"></i> Pendente</span>';
+
+        var servIdStr = reg.serverId
+          ? ' <span style="font-size:.72rem;color:#94a3b8;">ID: ' +
+            reg.serverId +
+            "</span>"
+          : "";
+
+        var matHtml = "";
+        if (reg.materiais && reg.materiais.length) {
+          var itens = reg.materiais
+            .map(function (m) {
+              return (
+                "<li>" +
+                (m.codigo ? "[" + m.codigo + "] " : "") +
+                (m.descricao || "") +
+                " — " +
+                (m.quantidade || "") +
+                " un.</li>"
+              );
+            })
+            .join("");
+          matHtml =
+            '<strong style="display:block;margin-top:.5rem;">Materiais:</strong><ul style="margin-left:1rem;font-size:.78rem;">' +
+            itens +
+            "</ul>";
+        }
+
+        var div = document.createElement("div");
+        div.className = "rec-card";
+        div.innerHTML =
+          '<div class="rec-top">' +
+          '<div class="rec-info">' +
+          '<div class="rec-name">' +
+          (reg.cliente || reg.clienteNome || "-") +
+          " " +
+          sincBadge +
+          servIdStr +
+          "</div>" +
+          '<div class="rec-detail">' +
+          '<i class="fas fa-tools" style="color:#3b82f6;width:16px;"></i> ' +
+          (reg.equipamento || "-") +
+          " — " +
+          (reg.servico || "-") +
+          "<br>" +
+          '<i class="fas fa-user-cog" style="color:#3b82f6;width:16px;"></i> Técnico: ' +
+          (reg.tecnico || "-") +
+          "<br>" +
+          '<i class="fas fa-calendar" style="color:#3b82f6;width:16px;"></i> ' +
+          fmtDate(reg.dataInicial) +
+          " → " +
+          fmtDate(reg.dataFinal) +
+          "<br>" +
+          '<i class="fas fa-map-marker-alt" style="color:#3b82f6;width:16px;"></i> ' +
+          (reg.cidade || "-") +
+          (reg.numeroSerie
+            ? '<br><i class="fas fa-barcode" style="color:#3b82f6;width:16px;"></i> Série: ' +
+              reg.numeroSerie
+            : "") +
+          "</div>" +
+          "</div>" +
+          '<div class="rec-actions">' +
+          '<button class="btn-gray btn-sm" id="detBtn' +
+          idx +
+          '"><i class="fas fa-eye"></i> Detalhes</button>' +
+          '<button class="btn-green btn-sm" id="shareBtn' +
+          idx +
+          '"><i class="fab fa-whatsapp"></i> WhatsApp</button>' +
+          "</div>" +
+          "</div>" +
+          '<div class="details-panel hidden" id="det' +
+          idx +
+          '">' +
+          "<strong>Relatório da máquina:</strong>" +
+          "<pre>" +
+          (reg.relatorioMaquina || "(sem relato)") +
+          "</pre>" +
+          matHtml +
+          "</div>";
+
+        div.querySelector("#detBtn" + idx).addEventListener(
+          "click",
+          (function (i) {
+            return function () {
+              toggleDetalhes(i);
+            };
+          })(idx),
+        );
+        div.querySelector("#shareBtn" + idx).addEventListener(
+          "click",
+          (function (i) {
+            return function () {
+              compartilharUm(i);
+            };
+          })(idx),
+        );
+
+        return div;
+      }
+
+      function toggleDetalhes(idx) {
+        document.getElementById("det" + idx).classList.toggle("hidden");
+      }
+
+      /* -------------------------------------------------------
+   Helpers para geração de PDF
+------------------------------------------------------- */
+      function carregarLogo() {
+        return new Promise(function (resolve) {
+          var img = new Image();
+          img.crossOrigin = "anonymous";
+          img.onload = function () {
+            resolve(img);
+          };
+          img.onerror = function () {
+            resolve(null);
+          };
+          img.src = LOGO_PATH;
+        });
+      }
+
+      function compressImg(b64, maxW, q) {
+        return new Promise(function (resolve) {
+          var img = new Image();
+          img.onload = function () {
+            var cv = document.createElement("canvas");
+            var r = img.width / img.height;
+            cv.width = img.width > maxW ? maxW : img.width;
+            cv.height = img.width > maxW ? maxW / r : img.height;
+            cv.getContext("2d").drawImage(img, 0, 0, cv.width, cv.height);
+            resolve(cv.toDataURL("image/jpeg", q));
+          };
+          img.src = b64;
+        });
+      }
+
+      function t3(pw) {
+        return {
+          styles: { fontSize: 8, cellPadding: 3, halign: "center" },
+          headStyles: {
+            fillColor: [0, 82, 163],
+            textColor: 255,
+            fontStyle: "bold",
+            halign: "center",
+          },
+          columnStyles: {
+            0: { cellWidth: (pw - 16) / 3 },
+            1: { cellWidth: (pw - 16) / 3 },
+            2: { cellWidth: (pw - 16) / 3 },
+          },
+          margin: { left: 8, right: 8 },
+          theme: "grid",
+        };
+      }
+      function t4(pw) {
+        return {
+          styles: { fontSize: 8, cellPadding: 3, halign: "center" },
+          headStyles: {
+            fillColor: [0, 82, 163],
+            textColor: 255,
+            fontStyle: "bold",
+            halign: "center",
+          },
+          columnStyles: {
+            0: { cellWidth: (pw - 16) / 4 },
+            1: { cellWidth: (pw - 16) / 4 },
+            2: { cellWidth: (pw - 16) / 4 },
+            3: { cellWidth: (pw - 16) / 4 },
+          },
+          margin: { left: 8, right: 8 },
+          theme: "grid",
+        };
+      }
+
+      function cabecalhoPDF(doc, titulo, reg, logo) {
+        var pw = doc.internal.pageSize.getWidth();
+        doc.setFillColor(0, 82, 163);
+        doc.rect(0, 0, pw, 17, "F");
+        if (reg.serverId) {
+          doc.setFontSize(9);
+          doc.setTextColor(255, 255, 255);
+          doc.text("ID: " + reg.serverId, pw - 10, 6, { align: "right" });
+        }
+        if (logo) doc.addImage(logo, "PNG", 10, 1.5, 30, 15);
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.text(titulo, pw / 2, 11, { align: "center" });
+      }
+
+      function assinaturasPDF(doc, reg, y) {
+        var pw = doc.internal.pageSize.getWidth();
+        var ph = doc.internal.pageSize.getHeight();
+        if (y + 42 > ph) {
+          doc.addPage();
+          y = 20;
+        }
+        var sw = 50,
+          sh = 25,
+          sp = (pw - sw * 2) / 3;
+        if (reg.assinaturas && reg.assinaturas.tecnico) {
+          try {
+            doc.addImage(reg.assinaturas.tecnico, "PNG", sp, y, sw, sh);
+          } catch (e) {}
+        }
+        if (reg.assinaturas && reg.assinaturas.cliente) {
+          try {
+            doc.addImage(
+              reg.assinaturas.cliente,
+              "PNG",
+              sp * 2 + sw,
+              y,
+              sw,
+              sh,
+            );
+          } catch (e) {}
+        }
+        y += sh + 2;
+        doc.setDrawColor(0, 0, 0);
+        doc.setLineWidth(0.3);
+        doc.line(sp, y, sp + sw, y);
+        doc.line(sp * 2 + sw, y, sp * 2 + sw * 2, y);
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(7);
+        doc.setFont("helvetica", "normal");
+        doc.text(
+          reg.tecnicoNome || reg.tecnico || "TÉCNICO",
+          sp + sw / 2,
+          y + 3,
+          { align: "center" },
+        );
+        doc.text(
+          reg.clienteNome || reg.cliente || "CLIENTE",
+          sp * 2 + sw + sw / 2,
+          y + 3,
+          { align: "center" },
+        );
+      }
+
+      /* -------------------------------------------------------
+   4. Gerar PDF Ficha
+------------------------------------------------------- */
+      async function gerarFicha(reg) {
+        var doc = new window.jspdf.jsPDF({
+          orientation: "p",
+          unit: "mm",
+          format: "a4",
+          compress: true,
+        });
+        var pw = doc.internal.pageSize.getWidth();
+        var logo = await carregarLogo();
+        cabecalhoPDF(doc, "FICHA DE MANUTENÇÃO", reg, logo);
+        var y = 22;
+
+        doc.autoTable(
+          Object.assign(
+            {
+              startY: y,
+              head: [["CLIENTE", "CIDADE", "EQUIPAMENTO", "Nº SÉRIE"]],
+              body: [
+                [
+                  reg.cliente || reg.clienteNome || "-",
+                  reg.cidade || "-",
+                  reg.equipamento || "-",
+                  reg.numeroSerie || "-",
+                ],
+              ],
+            },
+            t4(pw),
+          ),
+        );
+        y = doc.lastAutoTable.finalY + 4;
+
+        doc.autoTable(
+          Object.assign(
+            {
+              startY: y,
+              head: [["NOME DO SOLICITANTE", "FONE", "E-MAIL"]],
+              body: [["", "", ""]],
+            },
+            t3(pw),
+          ),
+        );
+        y = doc.lastAutoTable.finalY + 4;
+
+        doc.autoTable(
+          Object.assign(
+            {
+              startY: y,
+              head: [["TÉCNICO", "VEÍCULO", "ESTOQUE", "DATA"]],
+              body: [
+                [
+                  reg.tecnico || "-",
+                  reg.veiculo || "-",
+                  reg.estoque || "-",
+                  fmtDate(reg.dataInicial),
+                ],
+              ],
+            },
+            t4(pw),
+          ),
+        );
+        y = doc.lastAutoTable.finalY + 8;
+
+        doc.setTextColor(0, 82, 163);
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "bold");
+        doc.text("MATERIAIS UTILIZADOS", 10, y);
+        y += 6;
+
+        var matRows =
+          reg.materiais && reg.materiais.length
+            ? reg.materiais.map(function (m) {
+                return [m.codigo || "", m.quantidade || "", m.descricao || ""];
+              })
+            : [["", "", "Nenhum material."]];
+        doc.autoTable({
+          startY: y,
+          head: [["CÓDIGO", "QNTD", "MATERIAIS"]],
+          body: matRows,
+          styles: { fontSize: 8, cellPadding: 3 },
+          headStyles: {
+            fillColor: [0, 82, 163],
+            textColor: 255,
+            fontStyle: "bold",
+            halign: "center",
+          },
+          columnStyles: {
+            0: { cellWidth: 25, halign: "center" },
+            1: { cellWidth: 20, halign: "center" },
+            2: { cellWidth: pw - 16 - 45, halign: "left" },
+          },
+          margin: { left: 8, right: 8 },
+          theme: "grid",
+        });
+        y = doc.lastAutoTable.finalY + 8;
+
+        doc.setTextColor(0, 82, 163);
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "bold");
+        doc.text("ORDEM DE SERVIÇO", 10, y);
+        y += 6;
+        doc.autoTable({
+          startY: y,
+          head: [["OS COMPLEMENTAR", "OS SERVIÇO"]],
+          body: [["", ""]],
+          styles: { fontSize: 8, cellPadding: 3, halign: "center" },
+          headStyles: {
+            fillColor: [0, 82, 163],
+            textColor: 255,
+            fontStyle: "bold",
+            halign: "center",
+          },
+          columnStyles: {
+            0: { cellWidth: (pw - 16) / 2 },
+            1: { cellWidth: (pw - 16) / 2 },
+          },
+          margin: { left: 8, right: 8 },
+          theme: "grid",
+        });
+        y = doc.lastAutoTable.finalY + 15;
+
+        assinaturasPDF(doc, reg, y);
+        return doc.output("blob");
+      }
+
+      /* -------------------------------------------------------
+   5. Gerar PDF Relatório
+------------------------------------------------------- */
+      async function gerarRelatorio(reg) {
+        var doc = new window.jspdf.jsPDF({
+          orientation: "p",
+          unit: "mm",
+          format: "a4",
+          compress: true,
+        });
+        var pw = doc.internal.pageSize.getWidth();
+        var ph = doc.internal.pageSize.getHeight();
+        var logo = await carregarLogo();
+        cabecalhoPDF(doc, "RELATÓRIO DE PRESTAÇÃO DE SERVIÇO", reg, logo);
+        var y = 22;
+
+        doc.autoTable(
+          Object.assign(
+            {
+              startY: y,
+              head: [["CLIENTE", "CIDADE", "EQUIPAMENTO"]],
+              body: [
+                [
+                  reg.cliente || reg.clienteNome || "-",
+                  reg.cidade || "-",
+                  reg.equipamento || "-",
+                ],
+              ],
+            },
+            t3(pw),
+          ),
+        );
+        y = doc.lastAutoTable.finalY + 4;
+
+        doc.autoTable(
+          Object.assign(
+            {
+              startY: y,
+              head: [["TÉCNICO", "DATA INICIAL", "DATA FINAL"]],
+              body: [
+                [
+                  reg.tecnico || "-",
+                  fmtDate(reg.dataInicial),
+                  fmtDate(reg.dataFinal),
+                ],
+              ],
+            },
+            t3(pw),
+          ),
+        );
+        y = doc.lastAutoTable.finalY + 4;
+
+        doc.autoTable(
+          Object.assign(
+            {
+              startY: y,
+              head: [["SERVIÇO", "HORÁRIO INICIAL", "HORÁRIO FINAL"]],
+              body: [
+                [
+                  reg.servico || "-",
+                  reg.horaInicial || "-",
+                  reg.horaFinal || "-",
+                ],
+              ],
+            },
+            t3(pw),
+          ),
+        );
+        y = doc.lastAutoTable.finalY + 8;
+
+        doc.setTextColor(0, 82, 163);
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "bold");
+        doc.text("RELATÓRIO DA MÁQUINA", 10, y);
+        y += 6;
+
+        var relTxt = reg.relatorioMaquina || "Nenhum relatório.";
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(9);
+        doc.setFont("helvetica", "normal");
+        var lines = doc.splitTextToSize(relTxt, pw - 20);
+        var th = lines.length * 4.5;
+        if (y + th + 30 > ph) {
+          doc.addPage();
+          y = 20;
+        }
+        doc.setFillColor(245, 248, 251);
+        doc.setDrawColor(208, 218, 230);
+        doc.roundedRect(8, y - 2, pw - 16, th + 4, 2, 2, "FD");
+        doc.text(lines, 10, y + 2);
+        y += th + 10;
+
+        if (reg.fotos && reg.fotos.length > 0) {
+          if (y + 50 > ph) {
+            doc.addPage();
+            y = 20;
+          }
+          doc.setTextColor(0, 82, 163);
+          doc.setFontSize(10);
+          doc.setFont("helvetica", "bold");
+          doc.text("FOTOS DO SERVIÇO", 10, y);
+          y += 6;
+          var n = reg.fotos.length,
+            iw,
+            ih,
+            ipr;
+          if (n === 1) {
+            iw = 80;
+            ih = 60;
+            ipr = 1;
+          } else if (n === 2) {
+            iw = 65;
+            ih = 50;
+            ipr = 2;
+          } else if (n === 3) {
+            iw = 50;
+            ih = 40;
+            ipr = 3;
+          } else if (n <= 4) {
+            iw = 45;
+            ih = 35;
+            ipr = 4;
+          } else if (n <= 6) {
+            iw = 45;
+            ih = 35;
+            ipr = 3;
+          } else {
+            iw = 40;
+            ih = 30;
+            ipr = 4;
+          }
+          var sp2 = (pw - 16 - iw * ipr) / (ipr + 1),
+            cx = 8 + sp2,
+            cy = y,
+            pc = 0;
+          for (var fi = 0; fi < n; fi++) {
+            if (pc > 0 && pc % ipr === 0) {
+              cy += ih + 6;
+              if (cy + ih > ph - 15) {
+                doc.addPage();
+                cy = 20;
+              }
+              cx = 8 + sp2;
+            }
+            try {
+              var comp = await compressImg(reg.fotos[fi].data, 1400, 0.65);
+              doc.addImage(comp, "JPEG", cx, cy, iw, ih);
+            } catch (e) {}
+            cx += iw + sp2;
+            pc++;
+          }
+          y = cy + ih + 8;
+        }
+
+        assinaturasPDF(doc, reg, y);
+        return doc.output("blob");
+      }
+
+      /* -------------------------------------------------------
+   6. Compartilhar um registro
+------------------------------------------------------- */
+      async function compartilharUm(idx) {
+        var reg = registros[idx];
+        var btn = document.getElementById("shareBtn" + idx);
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando...';
+        try {
+          var fichaBlob = await gerarFichaPDF(reg);
+          var relBlob = await gerarRelatorioPDF(reg);
+          var label =
+            (reg.serverId ? "ID" + reg.serverId + "_" : "") +
+            (reg.cliente || reg.clienteNome || "cliente").replace(
+              /[^a-zA-Z0-9]/g,
+              "_",
+            ) +
+            "_" +
+            (reg.dataInicial || "").replace(/-/g, "");
+          await compartilharPDFs(
+            [fichaBlob, relBlob],
+            ["Ficha_" + label + ".pdf", "Relatorio_" + label + ".pdf"],
+            "Fichas do cliente: " +
+              (reg.cliente || reg.clienteNome || "-") +
+              "\nServico: " +
+              (reg.servico || "-") +
+              "\nData: " +
+              fmtDate(reg.dataInicial),
+          );
+        } catch (e) {
+          alert("Erro: " + e.message);
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fab fa-whatsapp"></i> WhatsApp';
+        }
+      }
+
+      /* -------------------------------------------------------
+   7. Compartilhar todos
+------------------------------------------------------- */
+      async function compartilharTodos() {
+        if (!registros.length) return;
+        var btnTodos = document.getElementById("btnTodos");
+        btnTodos.disabled = true;
+        btnTodos.innerHTML =
+          '<i class="fas fa-spinner fa-spin"></i> Gerando...';
+        mostrar("areaProgresso");
+
+        var allBlobs = [],
+          allNames = [],
+          total = registros.length * 2,
+          done = 0;
+
+        function prog(txt) {
+          document.getElementById("txtProgresso").textContent = txt;
+          document.getElementById("barraProgresso").style.width =
+            Math.round((done / total) * 100) + "%";
+        }
+
+        try {
+          for (var i = 0; i < registros.length; i++) {
+            var reg = registros[i];
+            var nomeCliente = (
+              reg.cliente ||
+              reg.clienteNome ||
+              "cliente"
+            ).replace(/[^a-zA-Z0-9]/g, "_");
+            var label =
+              (reg.serverId ? "ID" + reg.serverId + "_" : i + 1 + "_") +
+              nomeCliente +
+              "_" +
+              (reg.dataInicial || "").replace(/-/g, "");
+
+            prog("Gerando ficha " + (i + 1) + "/" + registros.length + "…");
+            allBlobs.push(await gerarFichaPDF(reg));
+            allNames.push("Ficha_" + label + ".pdf");
+            done++;
+
+            prog("Gerando relatório " + (i + 1) + "/" + registros.length + "…");
+            allBlobs.push(await gerarRelatorioPDF(reg));
+            allNames.push("Relatorio_" + label + ".pdf");
+            done++;
+          }
+
+          prog("Abrindo compartilhamento…");
+          document.getElementById("barraProgresso").style.width = "100%";
+
+          var nomeDisplay =
+            registros[0].cliente || registros[0].clienteNome || "-";
+          await compartilharPDFs(
+            allBlobs,
+            allNames,
+            "Fichas e relatórios do cliente: " +
+              nomeDisplay +
+              "\nTotal: " +
+              registros.length +
+              " registro(s)\n" +
+              allNames.length +
+              " arquivos PDF",
+          );
+        } catch (e) {
+          alert("Erro ao gerar PDFs: " + e.message);
+          console.error(e);
+        } finally {
+          esconder("areaProgresso");
+          document.getElementById("barraProgresso").style.width = "0%";
+          btnTodos.disabled = false;
+          btnTodos.innerHTML =
+            '<i class="fab fa-whatsapp"></i> Compartilhar TUDO';
+        }
+      }
+
+      /* -------------------------------------------------------
+   8. Núcleo de compartilhamento
+------------------------------------------------------- */
+      async function compartilharPDFs(blobs, nomes, texto) {
+        var files = blobs.map(function (b, i) {
+          return new File([b], nomes[i], { type: "application/pdf" });
+        });
+
+        if (navigator.canShare && navigator.canShare({ files: files })) {
+          try {
+            await navigator.share({
+              title: "Fichas de Serviço",
+              text: texto,
+              files: files,
+            });
+            return;
+          } catch (e) {
+            if (e.name === "AbortError") return;
+            console.warn("Web Share com arquivos falhou:", e.message);
+          }
+        }
+
+        for (var i = 0; i < blobs.length; i++) {
+          var url = URL.createObjectURL(blobs[i]);
+          var a = document.createElement("a");
+          a.href = url;
+          a.download = nomes[i];
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          await new Promise(function (r) {
+            setTimeout(r, 500);
+          });
+        }
+
+        var msgWA = encodeURIComponent(
+          texto +
+            "\n\n" +
+            nomes.length +
+            " arquivo(s) PDF baixados neste dispositivo.",
+        );
+        if (navigator.share) {
+          try {
+            await navigator.share({ title: "Fichas de Serviço", text: texto });
+            return;
+          } catch (e) {}
+        }
+        window.open("https://wa.me/?text=" + msgWA, "_blank");
+      }
+
+      /* -------------------------------------------------------
+   Inicialização e eventos
+------------------------------------------------------- */
+      detectarModoCompartilhamento();
+
+      // Buscar ao clicar
+      document
+        .getElementById("btnBuscar")
+        .addEventListener("click", function () {
+          buscarCliente(false);
+        });
+
+      // Buscar ao pressionar Enter
+      document
+        .getElementById("inputCliente")
+        .addEventListener("keydown", function (e) {
+          if (e.key === "Enter") buscarCliente(false);
+        });
+
+      // Busca ao digitar (debounce 500ms) — só funciona se já há cache
+      document
+        .getElementById("inputCliente")
+        .addEventListener("input", function () {
+          if (!cache.valido()) return;
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(function () {
+            var nome = document.getElementById("inputCliente").value.trim();
+            esconder("areaResultados");
+            esconder("areaVazio");
+            esconder("areaErro");
+            registros = [];
+            paginaAtual = 1;
+            aplicarFiltros(nome, cache.dados);
+          }, 400);
+        });
+
+      // Filtros disparam refiltragem imediata (se há cache)
+      [
+        "filtroStatus",
+        "filtroDataDe",
+        "filtroDataAte",
+        "filtroTecnico",
+        "filtroCidade",
+      ].forEach(function (id) {
+        document.getElementById(id).addEventListener("change", function () {
+          if (!cache.valido()) return;
+          var nome = document.getElementById("inputCliente").value.trim();
+          esconder("areaResultados");
+          esconder("areaVazio");
+          esconder("areaErro");
+          registros = [];
+          paginaAtual = 1;
+          aplicarFiltros(nome, cache.dados);
+        });
+      });
+
+      // Toggle painel de filtros
+      document
+        .getElementById("btnToggleFiltros")
+        .addEventListener("click", function () {
+          document.getElementById("areaFiltros").classList.toggle("hidden");
+        });
+
+      // Limpar filtros
+      document
+        .getElementById("btnLimparFiltros")
+        .addEventListener("click", function () {
+          document.getElementById("filtroStatus").value = "";
+          document.getElementById("filtroDataDe").value = "";
+          document.getElementById("filtroDataAte").value = "";
+          document.getElementById("filtroTecnico").value = "";
+          document.getElementById("filtroCidade").value = "";
+          contarFiltrosAtivos();
+          if (cache.valido()) {
+            var nome = document.getElementById("inputCliente").value.trim();
+            esconder("areaResultados");
+            esconder("areaVazio");
+            aplicarFiltros(nome, cache.dados);
+          }
+        });
+
+      // Botão Atualizar (força reload do servidor)
+      document
+        .getElementById("btnAtualizar")
+        .addEventListener("click", function () {
+          cache.limpar();
+          buscarCliente(true);
+        });
+
+      // Compartilhar todos
+      document
+        .getElementById("btnTodos")
+        .addEventListener("click", compartilharTodos);
+    </script>
+  </body>
+</html>

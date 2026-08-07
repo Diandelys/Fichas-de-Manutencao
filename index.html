@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <meta name="theme-color" content="#3b82f6" />
+
+  <meta name="mobile-web-app-capable" content="yes" />
+
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Formulário Serviço" />
+
+  <title>Formulário de Serviço</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <link rel="manifest" href="./manifest.json" />
+
+  <link rel="icon" type="image/x-icon" href="./assets/icons/favicon.ico" />
+
+  <meta name="theme-color" content="#1f2937" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/idb@8/build/umd.js"></script>
+
+  <style>
+    :root {
+      --primary: #3b82f6;
+      --secondary: #1e40af;
+      --accent: #f59e0b;
+    }
+
+    body {
+      font-family: "Inter", sans-serif;
+      background-color: #f8fafc;
+    }
+
+    .signature-canvas {
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      background-color: white;
+      cursor: crosshair;
+      touch-action: none;
+    }
+
+    .photo-preview {
+      border-radius: 8px;
+      object-fit: cover;
+      height: 120px;
+      width: 120px;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+      transition: all 0.3s;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--secondary);
+    }
+
+    .btn-secondary {
+      background-color: #f1f5f9;
+      color: #475569;
+      border: 1px solid #cbd5e1;
+    }
+
+    .btn-secondary:hover {
+      background-color: #e2e8f0;
+    }
+
+    .form-section {
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-section h2 {
+      color: #1e293b;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .status-indicator {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+
+    .status-online {
+      background-color: #10b981;
+    }
+
+    .status-offline {
+      background-color: #ef4444;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 8px;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      color: white;
+      font-size: 30px;
+      cursor: pointer;
+    }
+
+    .notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 16px;
+      border-radius: 8px;
+      color: white;
+      z-index: 1000;
+      display: none;
+    }
+
+    .notification.success {
+      background-color: #10b981;
+    }
+
+    .notification.error {
+      background-color: #ef4444;
+    }
+
+    .notification.info {
+      background-color: #3b82f6;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-gray-50">
+  <header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center">
+        <div class="bg-blue-600 text-white p-2 rounded-lg mr-3">
+          <i class="fas fa-tools text-xl"></i>
+        </div>
+        <h1 class="text-xl font-bold text-gray-800">Formulário de Serviço</h1>
+      </div>
+      <div class="flex items-center space-x-4">
+        <div id="status" class="flex items-center text-sm">
+          <span id="status-indicator" class="status-indicator status-offline"></span>
+          <span id="status-text">Offline</span>
+        </div>
+        <button id="toggle-auto-sync-btn" class="btn-secondary px-4 py-2 rounded-lg flex items-center"
+          aria-pressed="false" title="Alterna entre sincronização automática e manual">
+          <i class="fas fa-sync-alt mr-2"></i>
+          <span id="toggle-auto-sync-text">Auto Sync: Ativa</span>
+        </button>
+        <button id="sync-btn" class="btn-primary px-4 py-2 rounded-lg flex items-center relative">
+          <i class="fas fa-sync-alt mr-2"></i> Sincronizar
+          <span id="sync-badge"
+            class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center hidden">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container mx-auto px-4 py-6">
+    <section class="form-section">
+      <h2 class="text-xl font-semibold flex items-center">
+        <i class="fas fa-clipboard-list text-blue-600 mr-2"></i> Dados do
+        Serviço
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="space-y-4">
+          <div>
+            <label for="cliente" class="block text-sm font-medium text-gray-700 mb-1">Cliente *</label>
+            <input type="text" id="cliente" required
+              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" />
+          </div>
+
+          <div>
+            <label for="cidade" class="block text-sm font-medium text-gray-700 mb-1">Cidade - UF *</label>
+            <input type="text" id="cidade" required
+              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" />
+          </div>
+
+          <div>
+            <label for="equipamento" class="block text-sm font-medium text-gray-700 mb-1">Equipamento *</label>
+            <select id="equipamento" required
+              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+              <option value="">Selecione o equipamento</option>
+              <option value="SELAVES WI-FI">SELAVES WI-FI</option>
+              <option value="SELAVES">SELAVES</option>
+              <option value="CLASSAVE">CLASSAVE</option>
+              <option value="PS/SEL - WIFI">PS/SEL - WIFI</option>
+              <option value="BD15-SD/PS">BD15-SD/PS</option>
+              <option value="BD15-SD/SEL">BD15-SD/SEL</option>
+              <option value="BD15-BT">BD15-BT</option>
+              <option value="BCD-15">BCD-15</option>
+              <option value="SP-501">SP-501</option>
+              <option value="SP-300">SP-300</option>
+              <option value="SP-SEQ">SP-SEQ</option>
+              <option value="CS-P">CS-P</option>
+              <option value="CS-R">CS-R</option>
+              <option value="OUTRO">OUTRO</option>
+            </select>
+            <input type="text" id="equipamento-outro" placeholder="Especifique o equipamento"
+              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 mt-2 hidden" />
+          </div>
+
+          <div>
+            <label for="tecnico" class="block text-sm font-medium text-gray-700 mb-1">Técnico *</label>
+            <input type="text" id="tecnico" required
+              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" />
+          </div>
+
+          <div>
+            <label for="servico" class="block text-sm font-medium text-gray-700 mb-1">Serviço Prestado *</label>
+            <select id="servico" required
+              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+              <option value="">Selecione o tipo de serviço</option>
+              <option value="INSTALAÇÃO">INSTALAÇÃO</option>
+              <option value="STARTUP">STARTUP</option>
+              <option value="MANUTENÇÃO">MANUTENÇÃO</option>
+              <option value="ENTREGA">ENTREGA</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label for="data-inicial" class="block text-sm font-medium text-gray-700 mb-1">Data Inicial *</label>
+              <input type="date" id="data-inicial" required
+                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" />
+            </div>
+            <div>
+              <label for="hora-inicial" class="block text-sm font-medium text-gray-700 mb-1">Hora Inicial *</label>
+              <input type="time" id="hora-inicial" required
+                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label for="data-final" class="block text-sm font-medium text-gray-700 mb-1">Data Final *</label>
+              <input type="date" id="data-final" required
+                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" />
+            </div>
+            <div>
+              <label for="hora-final" class="block text-sm font-medium text-gray-700 mb-1">Hora Final *</label>
+              <input type="time" id="hora-final" required
+                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" />
+            </div>
+          </div>
+
+          <div>
+            <label for="veiculo" class="block text-sm font-medium text-gray-700 mb-1">Veículo</label>
+            <input type="text" id="veiculo"
+              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" />
+          </div>
+
+          <div>
+            <label for="estoque" class="block text-sm font-medium text-gray-700 mb-1">Estoque</label>
+            <select id="estoque"
+              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+              <option value="">Selecione o estoque</option>
+
+              <!-- Estoques de pessoas -->
+              <option value="ANDERSON 66">ANDERSON 66</option>
+              <option value="ANDRÉ 30">ANDRÉ 30</option>
+              <option value="LUCAS 33">LUCAS 33</option>
+
+              <!-- Estoques de sequencial -->
+              <option value="SEQUENCIAL 18">SEQUENCIAL 18</option>
+              <option value="SEQUENCIAL 19">SEQUENCIAL 19</option>
+              <option value="SEQUENCIAL 20">SEQUENCIAL 20</option>
+              <option value="SEQUENCIAL 23">SEQUENCIAL 23</option>
+              <option value="SEQUENCIAL 26">SEQUENCIAL 26</option>
+              <option value="SEQUENCIAL 27">SEQUENCIAL 27</option>
+              <option value="SEQUENCIAL 32">SEQUENCIAL 32</option>
+              <option value="SEQUENCIAL 50">SEQUENCIAL 50</option>
+              <option value="SEQUENCIAL 61">SEQUENCIAL 61</option>
+
+              <!-- Estoques de coleta solo -->
+              <option value="COLETA SOLO">COLETA SOLO</option>
+              <option value="CS 55">CS 55</option>
+              <option value="CS 56">CS 56</option>
+
+              <!-- Estoques de selaves -->
+              <option value="SELAVES 16">SELAVES 16</option>
+              <option value="SELAVES 22">SELAVES 22</option>
+              <option value="SELAVES 29">SELAVES 29</option>
+              <option value="SELAVES 44">SELAVES 44</option>
+              <option value="SELAVES 53">SELAVES 53</option>
+              <option value="SELAVES 54">SELAVES 54</option>
+              <option value="SELAVES RESERVA">SELAVES RESERVA</option>
+
+              <!-- Estoques de SP-501 -->
+              <option value="SP-501 48">SP-501 48</option>
+              <option value="SP-501 NOVO 01">SP-501 NOVO 01</option>
+              <option value="SP-501 NOVO 02">SP-501 NOVO 02</option>
+
+              <!-- Estoque da manutenção -->
+              <option value="MANUTENÇÃO 45">MANUTENÇÃO 45</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="numero-serie" class="block text-sm font-medium text-gray-700 mb-1">Nº de Série</label>
+            <input type="text" id="numero-serie"
+              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              placeholder="####/ano" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h2 class="text-xl font-semibold flex items-center">
+        <i class="fas fa-file-alt text-blue-600 mr-2"></i> Relatório da
+        Máquina
+      </h2>
+
+      <div>
+        <label for="relatorio-maquina" class="block text-sm font-medium text-gray-700 mb-1">Defeitos Encontrados e
+          Solução *</label>
+        <textarea id="relatorio-maquina" rows="5" required
+          class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+          placeholder="Descreva os defeitos encontrados e as soluções aplicadas..."></textarea>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h2 class="text-xl font-semibold flex items-center">
+        <i class="fas fa-camera text-blue-600 mr-2"></i> Fotos da Máquina
+      </h2>
+
+      <div class="mb-4">
+        <input type="file" id="fotos-input" accept="image/*" multiple class="hidden" />
+        <button id="add-fotos-btn" class="btn-secondary px-4 py-2 rounded-lg flex items-center">
+          <i class="fas fa-plus mr-2"></i> Adicionar Fotos
+        </button>
+        <p class="text-sm text-gray-500 mt-1">Máximo de 10 fotos</p>
+      </div>
+
+      <div id="fotos-preview" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
+    </section>
+
+    <section class="form-section">
+      <h2 class="text-xl font-semibold flex items-center">
+        <i class="fas fa-signature text-blue-600 mr-2"></i> Assinaturas
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div>
+          <h3 class="text-lg font-medium text-gray-700 mb-2">
+            Assinatura do Cliente *
+          </h3>
+          <div class="mb-2">
+            <label for="cliente-nome" class="block text-sm font-medium text-gray-700 mb-1">Nome Completo *</label>
+            <input type="text" id="cliente-nome" required
+              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" />
+          </div>
+          <canvas id="assinatura-cliente"
+            class="signature-canvas w-full h-40 border border-gray-200 rounded-lg"></canvas>
+          <div class="flex items-center justify-between mt-2">
+            <button id="limpar-cliente" class="text-sm text-red-500 hover:text-red-700 transition duration-150">
+              <i class="fas fa-eraser mr-1"></i> Limpar Assinatura
+            </button>
+            <label class="inline-flex items-center cursor-pointer text-sm text-gray-600">
+              <input type="checkbox" id="lock-cliente" class="form-checkbox h-4 w-4 text-blue-600 mr-2" />
+              Bloquear
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="text-lg font-medium text-gray-700 mb-2">
+            Assinatura do Técnico *
+          </h3>
+          <div class="mb-2">
+            <label for="tecnico-nome" class="block text-sm font-medium text-gray-700 mb-1">Nome Completo *</label>
+            <input type="text" id="tecnico-nome" required
+              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" />
+          </div>
+          <canvas id="assinatura-tecnico"
+            class="signature-canvas w-full h-40 border border-gray-200 rounded-lg"></canvas>
+          <div class="flex items-center justify-between mt-2">
+            <button id="limpar-tecnico" class="text-sm text-red-500 hover:text-red-700 transition duration-150">
+              <i class="fas fa-eraser mr-1"></i> Limpar Assinatura
+            </button>
+            <label class="inline-flex items-center cursor-pointer text-sm text-gray-600">
+              <input type="checkbox" id="lock-tecnico" class="form-checkbox h-4 w-4 text-blue-600 mr-2" />
+              Bloquear
+            </label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h2 class="text-xl font-semibold flex items-center">
+        <i class="fas fa-boxes text-blue-600 mr-2"></i> Materiais Utilizados
+      </h2>
+
+      <div class="mb-4">
+        <div class="flex space-x-2">
+          <input type="text" id="material-input" list="materiais-list" placeholder="Digite código ou nome do material"
+            class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" />
+          <datalist id="materiais-list"></datalist>
+          <input type="number" id="material-qtd" min="1" placeholder="Qtd"
+            class="w-24 p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" />
+          <button id="add-material-btn" class="btn-primary px-4 py-2 rounded-lg">
+            <i class="fas fa-plus mr-1"></i> Adicionar
+          </button>
+        </div>
+      </div>
+
+      <div id="materiais-lista" class="space-y-2"></div>
+    </section>
+
+    <div class="flex flex-col sm:flex-row sm:justify-end gap-4 mt-6">
+      <button id="export-btn" class="btn-primary px-6 py-3 rounded-lg flex items-center justify-center">
+        <i class="fas fa-download mr-2"></i> Salvar
+      </button>
+      <button id="clear-form-btn"
+        class="btn-secondary px-6 py-3 rounded-lg flex items-center justify-center text-red-600 border-red-200 hover:text-red-700">
+        <i class="fas fa-eraser mr-2"></i> Limpar Formulário
+      </button>
+    </div>
+  </main>
+
+  <div id="image-modal" class="modal">
+    <span class="modal-close">&times;</span>
+    <img class="modal-content" id="modal-image" />
+  </div>
+
+  <div id="notification" class="notification hidden">
+    <div class="flex items-center">
+      <i id="notification-icon" class="mr-2"></i>
+      <span id="notification-text"></span>
+    </div>
+  </div>
+
+  <script type="module" src="./js/app.js"></script>
+</body>
+
+</html>

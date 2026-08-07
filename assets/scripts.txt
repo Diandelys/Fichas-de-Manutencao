@@ -1,0 +1,4 @@
+supabase.exe login
+cd C:\Supabase
+supabase.exe functions deploy enviar-documentos --project-ref sqiqmpgzjxjjztuzlewg --no-verify-jwt
+supabase.exe secrets set WHATSAPP_API_URL="https://api.leadfinder.com.br/integracao/enviarMensagem/6B2991B488/ARQUIVO" WHATSAPP_TOKEN="58103127083906988C16EAD628F241E78C350689710608F82A91D2D3C4D36757" WHATSAPP_GROUP_ID="120363021586402490-group" --project-ref sqiqmpgzjxjjztuzlewg

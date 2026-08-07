@@ -1,0 +1,11 @@
+{
+  "name": "fichas-relatorios",
+  "version": "1.0.0",
+  "description": "Formulários Técnicos e Relatórios",
+  "scripts": {
+    "build:css": "npx @tailwindcss/cli@3 -i ./css/input.css -o ./css/tailwind.min.css --content \"./*.html\" --content \"./js/**/*.js\" --minify"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.19"
+  }
+}

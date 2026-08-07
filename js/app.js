@@ -237,21 +237,21 @@ function renderPaginacaoControlUI(container, totalItems, startIndex, endIndex, c
       const activeClass = isActive
         ? "bg-[#1B4F8A] text-white font-semibold shadow-2xs rounded-lg"
         : "bg-transparent text-[#374151] hover:bg-[#E5E7EB] hover:text-[#0F0E0D] rounded-md";
-      return `<button class="w-8 h-8 flex items-center justify-center text-sm transition-colors page-num-btn ${activeClass}" data-page="${p}">${p}</button>`;
+      return `<button type="button" class="w-8 h-8 flex items-center justify-center text-sm transition-colors page-num-btn ${activeClass}" data-page="${p}">${p}</button>`;
     })
     .join("");
 
   container.innerHTML = `
     <div>${infoText}</div>
     <nav aria-label="Paginação de formulários" class="flex items-center space-x-2">
-      <button id="page-prev-btn" class="w-8 h-8 rounded-md flex items-center justify-center text-[#6B6965] hover:bg-[#E5E7EB] hover:text-[#0F0E0D] disabled:opacity-40 disabled:cursor-not-allowed transition-colors" ${currentPage === 1 ? "disabled" : ""}>
+      <button type="button" id="page-prev-btn" class="w-8 h-8 rounded-md flex items-center justify-center text-[#6B6965] hover:bg-[#E5E7EB] hover:text-[#0F0E0D] disabled:opacity-40 disabled:cursor-not-allowed transition-colors" ${currentPage === 1 ? "disabled" : ""}>
         <i class="fas fa-chevron-left text-xs"></i>
       </button>
       <div class="hidden sm:flex items-center space-x-2">
         ${buttonsHTML}
       </div>
       <span class="sm:hidden text-xs text-[#6B6965] px-2 pe-mono">Página ${currentPage} de ${totalPages}</span>
-      <button id="page-next-btn" class="w-8 h-8 rounded-md flex items-center justify-center text-[#6B6965] hover:bg-[#E5E7EB] hover:text-[#0F0E0D] disabled:opacity-40 disabled:cursor-not-allowed transition-colors" ${currentPage === totalPages ? "disabled" : ""}>
+      <button type="button" id="page-next-btn" class="w-8 h-8 rounded-md flex items-center justify-center text-[#6B6965] hover:bg-[#E5E7EB] hover:text-[#0F0E0D] disabled:opacity-40 disabled:cursor-not-allowed transition-colors" ${currentPage === totalPages ? "disabled" : ""}>
         <i class="fas fa-chevron-right text-xs"></i>
       </button>
     </nav>
@@ -267,6 +267,8 @@ function renderPaginacaoControlUI(container, totalItems, startIndex, endIndex, c
 
   container.querySelectorAll(".page-num-btn").forEach((btn) => {
     btn.addEventListener("click", (e) => {
+      const page = Number(e.currentTarget.dataset.page);
+      if (page && page !== currentPage) onPageChange(page);
     });
   });
 }

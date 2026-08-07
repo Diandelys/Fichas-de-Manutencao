@@ -1282,29 +1282,28 @@ async function renderFormulariosSalvos() {
     // ======== Renderização de itens ========
     registros.forEach((registro) => {
       const dataLegivel = new Date(registro.id).toLocaleString("pt-BR");
-
-      const statusIcon = registro.sincronizado
-        ? '<i class="fas fa-check-circle text-green-500" title="Sincronizado"></i>'
-        : '<i class="fas fa-clock text-yellow-500" title="Pendente de sincronização"></i>';
+      const statusTag = registro.sincronizado
+        ? '<span class="pe-badge pe-badge-success"><i class="fas fa-check-circle text-[10px]"></i> Sincronizado</span>'
+        : '<span class="pe-badge pe-badge-warning"><i class="fas fa-clock text-[10px]"></i> Pendente</span>';
 
       const item = document.createElement("div");
       item.className = "bg-white p-3.5 rounded-lg shadow-2xs border border-[#E5E7EB] space-y-2.5";
       item.innerHTML = `
-					<!-- Linha 1: Cliente (Nº de Série) -->
-					<div class="flex items-center space-x-2">
-						${statusIcon}
+					<!-- Linha 1: Cliente (Nº de Série) + Tag de Status -->
+					<div class="flex flex-wrap items-center justify-between gap-2">
 						<div class="font-semibold text-[#0F0E0D] text-sm sm:text-base leading-snug">
 							${registro.cliente || "—"} <span class="text-xs sm:text-sm font-normal text-[#6B6965]">(Nº de Série: ${registro.numeroSerie || registro.equipamento || "—"})</span>
 						</div>
+						${statusTag}
 					</div>
 
 					<!-- Linha 2: Serviço, data e hora, ID -->
-					<div class="text-xs text-[#6B6965] pe-mono pl-6">
+					<div class="text-xs text-[#6B6965] pe-mono">
 						${registro.servico || "—"} • ${dataLegivel} • ID: ${registro.serverId || "Pendente"}
 					</div>
 
-					<!-- Linha 3: Botões -->
-					<div class="flex items-center justify-end space-x-2 pt-2 border-t border-[#F3F4F6]">
+					<!-- Linha 3: Botões Centralizados -->
+					<div class="flex items-center justify-center space-x-2 pt-2 border-t border-[#F3F4F6]">
 						<button class="pe-btn pe-btn-sm bg-[#16A34A] hover:bg-[#15803D] text-white border-0 shadow-2xs py-1 px-3 rounded-md flex items-center justify-center gap-1.5 share-btn" data-id="${registro.id}" title="Compartilhar no WhatsApp">
 							<i class="fab fa-whatsapp text-sm"></i>
 							<span class="text-xs font-medium">Compartilhar</span>

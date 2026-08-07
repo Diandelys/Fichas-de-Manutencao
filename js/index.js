@@ -1283,8 +1283,8 @@ async function renderFormulariosSalvos() {
 						<button class="pe-btn pe-btn-secondary pe-btn-sm border border-[#CBD5E1] hover:border-[#94A3B8] text-[#0F0E0D] font-medium py-1 px-2.5 rounded-md flex items-center gap-1.5 shadow-2xs edit-btn" data-id="${registro.id}">
 							<i class="fas fa-edit text-xs"></i> Editar
 						</button>
-						<button class="pe-btn pe-btn-secondary pe-btn-sm border border-[#CBD5E1] hover:border-[#94A3B8] text-[#DC2626] hover:bg-red-50 py-1 px-2.5 rounded-md flex items-center justify-center shadow-2xs delete-btn" data-id="${registro.id}" title="Excluir Formulário">
-							<i class="fas fa-trash text-xs"></i>
+						<button class="pe-btn pe-btn-sm bg-[#FEF2F2] hover:bg-[#FEE2E2] text-[#DC2626] border border-[#FCA5A5] hover:border-[#F87171] py-1 px-2.5 rounded-md flex items-center justify-center shadow-2xs delete-btn" data-id="${registro.id}" title="Excluir Formulário">
+							<i class="fas fa-trash text-xs text-[#DC2626]"></i>
 						</button>
 					</div>
 				`;

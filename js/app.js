@@ -192,25 +192,36 @@ export async function compartilharFormularioLocal(id) {
 
     showNotification("Gerando relatórios em PDF para compartilhar...", "info");
 
+    const idStr = reg.serverId ? `${reg.serverId}` : `${reg.id}`;
+
     const fichaBlob = await gerarFichaPDF(reg, reg.serverId);
     const relatorioBlob = await gerarRelatorioPDF(reg, reg.serverId);
 
-    const clienteClean = (reg.cliente || "cliente").replace(/[^a-zA-Z0-9]/g, "_");
-    const idLabel = reg.serverId ? `ID_${reg.serverId}` : `Form_${reg.id}`;
+    const nomeFicha = `Ficha de Materiais (Nº ${idStr}).pdf`;
+    const nomeRelatorio = `Relatório de Serviço (Nº ${idStr}).pdf`;
 
-    const fichaFile = new File([fichaBlob], `Ficha_${idLabel}_${clienteClean}.pdf`, {
+    const fichaFile = new File([fichaBlob], nomeFicha, {
       type: "application/pdf",
     });
 
-    const relatorioFile = new File([relatorioBlob], `Relatorio_${idLabel}_${clienteClean}.pdf`, {
+    const relatorioFile = new File([relatorioBlob], nomeRelatorio, {
       type: "application/pdf",
     });
 
-    const textoShare = `*PEXO EXATO SOLUTIONS*\nCliente: ${reg.cliente || "-"}\nEquipamento: ${reg.equipamento || "-"}\nServiço: ${reg.servico || "-"}` + (reg.serverId ? `\nID VPS: ${reg.serverId}` : "");
+    const detalhes = [
+      `Cliente: ${reg.cliente || "-"}`,
+      `Cidade: ${reg.cidade || "-"}`,
+      `Equipamento: ${reg.equipamento || "-"}`,
+      `Serviço: ${reg.servico || "-"}`,
+      `Técnico: ${reg.tecnico || "-"}`,
+      `Estoque: ${reg.estoque || "-"}`,
+    ].join("\n");
+
+    const textoShare = `Relatório de Serviço e Ficha de Materiais (Nº ${idStr})\n\n${detalhes}`;
 
     if (navigator.canShare && navigator.canShare({ files: [fichaFile, relatorioFile] })) {
       await navigator.share({
-        title: `Relatórios - ${reg.cliente || "Cliente"}`,
+        title: `Fichas do cliente ${reg.cliente || "-"} (Nº ${idStr})`,
         text: textoShare,
         files: [fichaFile, relatorioFile],
       });
@@ -218,11 +229,11 @@ export async function compartilharFormularioLocal(id) {
       return;
     }
 
-    // Fallback: Baixa os 2 arquivos PDF no dispositivo e abre o WhatsApp
+    // Fallback para download dos 2 arquivos PDF no dispositivo e abertura do WhatsApp
     const linkFicha = URL.createObjectURL(fichaBlob);
     const a1 = document.createElement("a");
     a1.href = linkFicha;
-    a1.download = `Ficha_${idLabel}_${clienteClean}.pdf`;
+    a1.download = nomeFicha;
     document.body.appendChild(a1);
     a1.click();
     document.body.removeChild(a1);
@@ -231,7 +242,7 @@ export async function compartilharFormularioLocal(id) {
     const linkRel = URL.createObjectURL(relatorioBlob);
     const a2 = document.createElement("a");
     a2.href = linkRel;
-    a2.download = `Relatorio_${idLabel}_${clienteClean}.pdf`;
+    a2.download = nomeRelatorio;
     document.body.appendChild(a2);
     a2.click();
     document.body.removeChild(a2);

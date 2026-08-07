@@ -1426,7 +1426,7 @@ async function compartilharFormulario(id) {
     const materiais = form.materiais || [];
     const fotos = form.fotos || [];
     const assinaturas = form.assinaturas || { cliente: null, tecnico: null };
-    const serverId = form.serverId || "Pendente";
+    const idStr = form.serverId ? `${form.serverId}` : `${form.id}`;
 
     showNotification("Gerando relatórios para compartilhar...", "info");
 
@@ -1435,7 +1435,7 @@ async function compartilharFormulario(id) {
       materiais,
       fotos,
       assinaturas,
-      serverId,
+      idStr,
     );
 
     const relatorioBlob = await gerarRelatorioPDFBase64(
@@ -1443,28 +1443,37 @@ async function compartilharFormulario(id) {
       materiais,
       fotos,
       assinaturas,
-      serverId,
+      idStr,
     );
 
-    const clienteClean = (form.cliente || "cliente").replace(/[^a-zA-Z0-9]/g, "_");
-    const idLabel = form.serverId ? `ID${form.serverId}` : `Form_${form.id}`;
+    const nomeFicha = `Ficha de Materiais (Nº ${idStr}).pdf`;
+    const nomeRelatorio = `Relatório de Serviço (Nº ${idStr}).pdf`;
 
-    const fichaFile = new File([fichaBlob], `Ficha_${idLabel}_${clienteClean}.pdf`, {
+    const fichaFile = new File([fichaBlob], nomeFicha, {
       type: "application/pdf",
     });
 
-    const relatorioFile = new File([relatorioBlob], `Relatorio_${idLabel}_${clienteClean}.pdf`, {
+    const relatorioFile = new File([relatorioBlob], nomeRelatorio, {
       type: "application/pdf",
     });
 
-    const textoShare = `*PEXO EXATO SOLUTIONS*\nCliente: ${form.cliente || "-"}\nEquipamento: ${form.equipamento || "-"}\nServiço: ${form.servico || "-"}\nID VPS: ${serverId}`;
+    const detalhes = [
+      `Cliente: ${form.cliente || "-"}`,
+      `Cidade: ${form.cidade || "-"}`,
+      `Equipamento: ${form.equipamento || "-"}`,
+      `Serviço: ${form.servico || "-"}`,
+      `Técnico: ${form.tecnico || "-"}`,
+      `Estoque: ${form.estoque || "-"}`,
+    ].join("\n");
+
+    const textoShare = `Relatório de Serviço e Ficha de Materiais (Nº ${idStr})\n\n${detalhes}`;
 
     if (
       navigator.canShare &&
       navigator.canShare({ files: [fichaFile, relatorioFile] })
     ) {
       await navigator.share({
-        title: `Relatórios - ${form.cliente || "Cliente"}`,
+        title: `Fichas do cliente ${form.cliente || "-"} (Nº ${idStr})`,
         text: textoShare,
         files: [fichaFile, relatorioFile],
       });
@@ -1476,7 +1485,7 @@ async function compartilharFormulario(id) {
     const linkFicha = URL.createObjectURL(fichaBlob);
     const a1 = document.createElement("a");
     a1.href = linkFicha;
-    a1.download = `Ficha_${idLabel}_${clienteClean}.pdf`;
+    a1.download = nomeFicha;
     document.body.appendChild(a1);
     a1.click();
     document.body.removeChild(a1);
@@ -1485,7 +1494,7 @@ async function compartilharFormulario(id) {
     const linkRel = URL.createObjectURL(relatorioBlob);
     const a2 = document.createElement("a");
     a2.href = linkRel;
-    a2.download = `Relatorio_${idLabel}_${clienteClean}.pdf`;
+    a2.download = nomeRelatorio;
     document.body.appendChild(a2);
     a2.click();
     document.body.removeChild(a2);

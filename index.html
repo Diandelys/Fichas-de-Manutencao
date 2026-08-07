@@ -123,7 +123,7 @@
 <body class="min-h-screen">
   <header class="bg-white border-b border-[#E5E7EB] sticky top-0 z-50 shadow-xs">
     <div class="container mx-auto px-4 py-2.5 sm:flex sm:justify-between sm:items-center">
-      <div class="flex justify-between items-center w-full sm:w-auto gap-2">
+      <div class="flex justify-between items-center w-full sm:w-auto gap-3">
         <div class="flex items-center space-x-2.5 min-w-0">
           <div class="bg-[#1B4F8A] text-white p-2 rounded-lg flex items-center justify-center shrink-0">
             <i class="fas fa-balance-scale text-lg sm:text-xl"></i>
@@ -134,22 +134,28 @@
           </div>
         </div>
 
-        <div class="flex items-center space-x-1.5 shrink-0">
-          <!-- Badge Online/Offline (Entre o título e o botão de recolher) -->
-          <div id="status" class="flex items-center text-[10px] sm:text-xs font-medium px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full bg-[#F2F1EE]">
+        <div class="flex items-center space-x-4 shrink-0 sm:hidden">
+          <!-- Badge Online/Offline no Mobile (Com espaçamento amplo à esquerda do botão de recolher) -->
+          <div id="status-mobile" class="flex items-center text-[10px] font-medium px-2.5 py-1 rounded-full bg-[#F2F1EE] shrink-0">
             <span id="status-indicator" class="status-indicator status-offline"></span>
             <span id="status-text" class="text-[#6B6965]">Offline</span>
           </div>
 
           <!-- Botão de Expandir/Recolher no Mobile -->
-          <button id="toggle-header-controls-btn" class="sm:hidden text-[#6B6965] hover:text-[#0F0E0D] p-1.5 rounded bg-[#F2F1EE] border border-[#E5E7EB] text-xs flex items-center justify-center cursor-pointer shrink-0" title="Recolher / Expandir botões">
+          <button id="toggle-header-controls-btn" class="text-[#6B6965] hover:text-[#0F0E0D] p-1.5 rounded bg-[#F2F1EE] border border-[#E5E7EB] text-xs flex items-center justify-center cursor-pointer shrink-0" title="Recolher / Expandir botões">
             <i id="toggle-controls-icon" class="fas fa-chevron-down text-[11px]"></i>
           </button>
         </div>
       </div>
 
-      <!-- Container dos Controles: no mobile aparece ABAIXO do título, um ao lado do outro -->
+      <!-- Container dos Controles: no PC fica alinhado à direita com a Badge ao lado do botão Sync -->
       <div id="header-controls-container" class="hidden sm:flex flex-row items-center justify-center sm:justify-end gap-2 pt-2 mt-2 border-t border-[#E5E7EB] sm:border-0 sm:mt-0 sm:pt-0 sm:gap-2.5">
+        <!-- Badge Online/Offline no PC (Fica à esquerda do botão Sync) -->
+        <div id="status-desktop" class="hidden sm:flex items-center text-xs font-medium px-2.5 py-1 rounded-full bg-[#F2F1EE] shrink-0 mr-1">
+          <span class="status-indicator status-offline"></span>
+          <span id="status-text-desktop" class="text-[#6B6965]">Offline</span>
+        </div>
+
         <button id="toggle-auto-sync-btn" class="pe-btn pe-btn-secondary text-[11px] sm:text-xs py-1 px-2.5 sm:py-1.5 sm:px-3 h-auto min-h-0 leading-tight"
           aria-pressed="false" title="Alterna entre sincronização automática e manual">
           <i class="fas fa-sync-alt text-[10px] sm:text-xs"></i>

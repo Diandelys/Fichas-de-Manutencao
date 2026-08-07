@@ -66,17 +66,16 @@ export function initMobileControlsToggle() {
  * Atualiza o indicador visual de conexão (Online / Offline)
  */
 export function updateOnlineStatus() {
-  const indicator = document.getElementById("status-indicator");
-  const text = document.getElementById("status-text");
-  if (!indicator || !text) return;
+  const indicators = document.querySelectorAll(".status-indicator");
+  const texts = document.querySelectorAll("#status-text, #status-text-desktop");
+  const isOnline = navigator.onLine;
 
-  if (navigator.onLine) {
-    indicator.className = "status-indicator status-online";
-    text.textContent = "Online";
-  } else {
-    indicator.className = "status-indicator status-offline";
-    text.textContent = "Offline";
-  }
+  indicators.forEach((ind) => {
+    ind.className = isOnline ? "status-indicator status-online" : "status-indicator status-offline";
+  });
+  texts.forEach((txt) => {
+    txt.textContent = isOnline ? "Online" : "Offline";
+  });
 }
 
 /**

@@ -322,13 +322,16 @@ let lastYTecnico = 0;
 
 // Atualiza indicador visual de status da rede
 function updateOnlineStatus() {
-  if (navigator.onLine) {
-    statusIndicator.className = "status-indicator status-online";
-    statusText.textContent = "Online";
-  } else {
-    statusIndicator.className = "status-indicator status-offline";
-    statusText.textContent = "Offline";
-  }
+  const indicators = document.querySelectorAll(".status-indicator");
+  const texts = document.querySelectorAll("#status-text, #status-text-desktop");
+  const isOnline = navigator.onLine;
+
+  indicators.forEach((ind) => {
+    ind.className = isOnline ? "status-indicator status-online" : "status-indicator status-offline";
+  });
+  texts.forEach((txt) => {
+    txt.textContent = isOnline ? "Online" : "Offline";
+  });
 }
 
 // Event Listeners

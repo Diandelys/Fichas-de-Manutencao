@@ -1670,7 +1670,7 @@ async function startApp() {
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
         navigator.serviceWorker
-          .register("./sw.js?v=0143")
+          .register("./sw.js?v=0144")
           .then((reg) => {
             console.log(
               "Service Worker registrado com sucesso. Scope:",

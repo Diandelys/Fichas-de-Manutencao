@@ -1304,20 +1304,20 @@ async function renderFormulariosSalvos() {
         : "border-l-4 border-l-[#EAB308]";
 
       const item = document.createElement("div");
-      item.className = `bg-white p-3.5 rounded-lg shadow-2xs border border-[#E5E7EB] ${borderClass} space-y-2.5`;
+      item.className = `bg-white p-3.5 rounded-lg shadow-2xs border border-[#E5E7EB] ${borderClass} space-y-2.5 sm:space-y-0 sm:flex sm:items-center sm:justify-between sm:gap-4`;
       item.innerHTML = `
-					<!-- Linha 1: Cliente (Nº de Série) -->
-					<div class="font-semibold text-[#0F0E0D] text-sm sm:text-base leading-snug">
-						${registro.cliente || "—"} <span class="text-xs sm:text-sm font-normal text-[#6B6965]">(Nº de Série: ${registro.numeroSerie || registro.equipamento || "—"})</span>
+					<!-- Informações do Formulário -->
+					<div class="space-y-1">
+						<div class="font-semibold text-[#0F0E0D] text-sm sm:text-base leading-snug">
+							${registro.cliente || "—"} <span class="text-xs sm:text-sm font-normal text-[#6B6965]">(Nº de Série: ${registro.numeroSerie || registro.equipamento || "—"})</span>
+						</div>
+						<div class="text-xs text-[#6B6965] pe-mono">
+							${registro.servico || "—"} • ${dataLegivel} • ID: ${registro.serverId || "Pendente"}
+						</div>
 					</div>
 
-					<!-- Linha 2: Serviço, data e hora, ID -->
-					<div class="text-xs text-[#6B6965] pe-mono">
-						${registro.servico || "—"} • ${dataLegivel} • ID: ${registro.serverId || "Pendente"}
-					</div>
-
-					<!-- Linha 3: Botões Centralizados -->
-					<div class="flex items-center justify-center space-x-2 pt-2 border-t border-[#F3F4F6]">
+					<!-- Botões de Ação (Abaixo no Mobile, ao lado direito no PC) -->
+					<div class="flex items-center justify-center sm:justify-end space-x-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-[#F3F4F6]">
 						<button class="pe-btn pe-btn-sm bg-[#16A34A] hover:bg-[#15803D] text-white border-0 shadow-2xs py-1 px-3 rounded-md flex items-center justify-center gap-1.5 share-btn" data-id="${registro.id}" title="Compartilhar no WhatsApp">
 							<i class="fab fa-whatsapp text-sm"></i>
 							<span class="text-xs font-medium">Compartilhar</span>
@@ -1372,21 +1372,39 @@ function renderPaginacaoControlIndex(container, totalItems, startIndex, endIndex
 
   const infoText = `Mostrando <span class="font-medium text-[#0F0E0D] pe-mono">${startIndex + 1}–${endIndex}</span> de <span class="font-medium text-[#0F0E0D] pe-mono">${totalItems}</span> formulário(s)`;
 
-  let buttonsHTML = "";
-  for (let i = 1; i <= totalPages; i++) {
-    const activeClass = i === currentPage
-      ? "bg-[#1B4F8A] text-white font-semibold shadow-2xs"
-      : "bg-transparent text-[#0F0E0D] hover:bg-[#E5E7EB]";
-    buttonsHTML += `<button class="w-8 h-8 rounded-md flex items-center justify-center text-xs transition-colors page-num-btn ${activeClass}" data-page="${i}">${i}</button>`;
+  let pages = [];
+  if (totalPages <= 7) {
+    for (let i = 1; i <= totalPages; i++) pages.push(i);
+  } else {
+    if (currentPage <= 4) {
+      pages = [1, 2, 3, 4, 5, "...", totalPages];
+    } else if (currentPage >= totalPages - 3) {
+      pages = [1, "...", totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+    } else {
+      pages = [1, "...", currentPage - 1, currentPage, currentPage + 1, "...", totalPages];
+    }
   }
+
+  const buttonsHTML = pages
+    .map((p) => {
+      if (p === "...") {
+        return `<span class="w-8 h-8 flex items-center justify-center text-xs text-[#9CA3AF]">...</span>`;
+      }
+      const isActive = p === currentPage;
+      const activeClass = isActive
+        ? "bg-[#1B4F8A] text-white font-semibold shadow-2xs rounded-lg"
+        : "bg-transparent text-[#374151] hover:bg-[#E5E7EB] hover:text-[#0F0E0D] rounded-md";
+      return `<button class="w-8 h-8 flex items-center justify-center text-sm transition-colors page-num-btn ${activeClass}" data-page="${p}">${p}</button>`;
+    })
+    .join("");
 
   container.innerHTML = `
     <div>${infoText}</div>
-    <nav aria-label="Paginação de formulários" class="flex items-center space-x-1">
+    <nav aria-label="Paginação de formulários" class="flex items-center space-x-2">
       <button id="page-prev-btn" class="w-8 h-8 rounded-md flex items-center justify-center text-[#6B6965] hover:bg-[#E5E7EB] hover:text-[#0F0E0D] disabled:opacity-40 disabled:cursor-not-allowed transition-colors" ${currentPage === 1 ? "disabled" : ""}>
         <i class="fas fa-chevron-left text-xs"></i>
       </button>
-      <div class="hidden sm:flex items-center space-x-1">
+      <div class="hidden sm:flex items-center space-x-2">
         ${buttonsHTML}
       </div>
       <span class="sm:hidden text-xs text-[#6B6965] px-2 pe-mono">Página ${currentPage} de ${totalPages}</span>

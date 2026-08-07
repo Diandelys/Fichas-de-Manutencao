@@ -26,10 +26,38 @@ export function initUIControls() {
   setupModalEventListeners();
   updateOnlineStatus();
   initAutoSyncToggle();
+  initMobileControlsToggle();
   loadDraftFromStorage();
 
   window.addEventListener("online", updateOnlineStatus);
   window.addEventListener("offline", updateOnlineStatus);
+}
+
+/**
+ * Inicializa a alternância de exibição/recolhimento dos controles no mobile
+ */
+export function initMobileControlsToggle() {
+  const toggleBtn = document.getElementById("toggle-header-controls-btn");
+  const container = document.getElementById("header-controls-container");
+  const icon = document.getElementById("toggle-controls-icon");
+  if (!toggleBtn || !container) return;
+
+  toggleBtn.addEventListener("click", () => {
+    const isHidden = container.classList.contains("hidden");
+    if (isHidden) {
+      container.classList.remove("hidden");
+      if (icon) {
+        icon.classList.remove("fa-chevron-down");
+        icon.classList.add("fa-chevron-up");
+      }
+    } else {
+      container.classList.add("hidden");
+      if (icon) {
+        icon.classList.remove("fa-chevron-up");
+        icon.classList.add("fa-chevron-down");
+      }
+    }
+  });
 }
 
 /**

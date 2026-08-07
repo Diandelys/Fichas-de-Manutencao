@@ -377,6 +377,29 @@ function setupEventListeners() {
       .addEventListener("click", toggleAutoSyncMode);
   }
 
+  const toggleHeaderControlsBtn = document.getElementById("toggle-header-controls-btn");
+  if (toggleHeaderControlsBtn) {
+    toggleHeaderControlsBtn.addEventListener("click", () => {
+      const container = document.getElementById("header-controls-container");
+      const icon = document.getElementById("toggle-controls-icon");
+      if (!container) return;
+      const isHidden = container.classList.contains("hidden");
+      if (isHidden) {
+        container.classList.remove("hidden");
+        if (icon) {
+          icon.classList.remove("fa-chevron-down");
+          icon.classList.add("fa-chevron-up");
+        }
+      } else {
+        container.classList.add("hidden");
+        if (icon) {
+          icon.classList.remove("fa-chevron-up");
+          icon.classList.add("fa-chevron-down");
+        }
+      }
+    });
+  }
+
   document.querySelectorAll("input, select, textarea").forEach((field) => {
     field.addEventListener("input", scheduleDraftSave);
     field.addEventListener("change", scheduleDraftSave);

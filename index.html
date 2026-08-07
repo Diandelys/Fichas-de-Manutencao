@@ -122,34 +122,36 @@
 
 <body class="min-h-screen">
   <header class="bg-white border-b border-[#E5E7EB] sticky top-0 z-50 shadow-xs">
-    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-      <div class="flex items-center space-x-3">
-        <div class="bg-[#1B4F8A] text-white p-2.5 rounded-lg flex items-center justify-center">
-          <i class="fas fa-balance-scale text-xl"></i>
+    <div class="container mx-auto px-4 py-2.5 sm:flex sm:justify-between sm:items-center">
+      <div class="flex justify-between items-center w-full sm:w-auto">
+        <div class="flex items-center space-x-2.5">
+          <div class="bg-[#1B4F8A] text-white p-2 rounded-lg flex items-center justify-center shrink-0">
+            <i class="fas fa-balance-scale text-lg sm:text-xl"></i>
+          </div>
+          <div>
+            <h1 class="text-sm sm:text-lg font-bold text-[#0F0E0D]">Formulário de Serviço</h1>
+            <p class="text-[10px] sm:text-xs text-[#6B6965] pe-mono">PESO EXATO SOLUTIONS</p>
+          </div>
         </div>
-        <div>
-          <h1 class="text-lg font-bold text-[#0F0E0D]">Formulário de Serviço</h1>
-          <p class="text-xs text-[#6B6965] pe-mono">PESO EXATO SOLUTIONS</p>
-        </div>
-      </div>
-      <div class="flex items-center space-x-1.5">
-        <!-- Botão de Recolher/Expandir Controles no Mobile -->
+
+        <!-- Botão de Expandir/Recolher no Mobile -->
         <button id="toggle-header-controls-btn" class="sm:hidden text-[#6B6965] hover:text-[#0F0E0D] p-1.5 rounded bg-[#F2F1EE] border border-[#E5E7EB] text-xs flex items-center justify-center cursor-pointer" title="Recolher / Expandir botões">
           <i id="toggle-controls-icon" class="fas fa-chevron-down text-[11px]"></i>
         </button>
+      </div>
 
-        <div id="header-controls-container" class="hidden sm:flex flex-col sm:flex-row items-stretch sm:items-center gap-1 sm:gap-2.5">
-          <button id="toggle-auto-sync-btn" class="pe-btn pe-btn-secondary text-[10px] sm:text-xs py-0.5 px-2 sm:py-1.5 sm:px-3 h-auto min-h-0 leading-tight"
-            aria-pressed="false" title="Alterna entre sincronização automática e manual">
-            <i class="fas fa-sync-alt text-[9px] sm:text-xs"></i>
-            <span id="toggle-auto-sync-text">Sync: Ativo</span>
-          </button>
-          <button id="sync-btn" class="pe-btn pe-btn-primary text-[10px] sm:text-xs py-0.5 px-2 sm:py-1.5 sm:px-3 h-auto min-h-0 leading-tight relative">
-            <i class="fas fa-sync-alt text-[9px] sm:text-xs"></i> Sincronizar
-            <span id="sync-badge"
-              class="absolute -top-1.5 -right-1.5 bg-[#DC2626] text-white rounded-full text-[8px] w-3.5 h-3.5 flex items-center justify-center hidden pe-mono">0</span>
-          </button>
-        </div>
+      <!-- Container dos Controles: no mobile aparece ABAIXO do título, um ao lado do outro -->
+      <div id="header-controls-container" class="hidden sm:flex flex-row items-center justify-end gap-2 pt-2 mt-2 border-t border-[#E5E7EB] sm:border-0 sm:mt-0 sm:pt-0 sm:gap-2.5">
+        <button id="toggle-auto-sync-btn" class="pe-btn pe-btn-secondary text-[11px] sm:text-xs py-1 px-2.5 sm:py-1.5 sm:px-3 h-auto min-h-0 leading-tight"
+          aria-pressed="false" title="Alterna entre sincronização automática e manual">
+          <i class="fas fa-sync-alt text-[10px] sm:text-xs"></i>
+          <span id="toggle-auto-sync-text">Sync: Ativo</span>
+        </button>
+        <button id="sync-btn" class="pe-btn pe-btn-primary text-[11px] sm:text-xs py-1 px-2.5 sm:py-1.5 sm:px-3 h-auto min-h-0 leading-tight relative">
+          <i class="fas fa-sync-alt text-[10px] sm:text-xs"></i> Sincronizar
+          <span id="sync-badge"
+            class="absolute -top-1.5 -right-1.5 bg-[#DC2626] text-white rounded-full text-[9px] w-4 h-4 flex items-center justify-center hidden pe-mono">0</span>
+        </button>
       </div>
     </div>
   </header>

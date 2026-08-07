@@ -386,12 +386,14 @@ function setupEventListeners() {
       const isHidden = container.classList.contains("hidden");
       if (isHidden) {
         container.classList.remove("hidden");
+        container.classList.add("flex");
         if (icon) {
           icon.classList.remove("fa-chevron-down");
           icon.classList.add("fa-chevron-up");
         }
       } else {
         container.classList.add("hidden");
+        container.classList.remove("flex");
         if (icon) {
           icon.classList.remove("fa-chevron-up");
           icon.classList.add("fa-chevron-down");

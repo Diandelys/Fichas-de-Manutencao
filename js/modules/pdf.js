@@ -459,3 +459,6 @@ export async function gerarRelatorioPDF(reg, serverId = null) {
 
   return doc.output("blob");
 }
+
+window.gerarFichaPDF = gerarFichaPDF;
+window.gerarRelatorioPDF = gerarRelatorioPDF;

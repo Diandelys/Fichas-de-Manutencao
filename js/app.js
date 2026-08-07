@@ -161,11 +161,9 @@ async function renderFormulariosSalvosUI() {
       </div>
     `;
 
-    item.querySelector(".share-btn")?.addEventListener("click", (e) => {
+    item.querySelector(".share-btn")?.addEventListener("click", async (e) => {
       const id = e.currentTarget.dataset.id;
-      if (typeof window.compartilharFormulario === "function") {
-        window.compartilharFormulario(id);
-      }
+      await compartilharFormularioLocal(id);
     });
 
     item.querySelector(".edit-btn")?.addEventListener("click", (e) => {
@@ -183,3 +181,71 @@ async function renderFormulariosSalvosUI() {
     lista.appendChild(item);
   });
 }
+
+export async function compartilharFormularioLocal(id) {
+  try {
+    const reg = await getFormulario(Number(id));
+    if (!reg) {
+      showNotification("Formulário não encontrado no navegador", "error");
+      return;
+    }
+
+    showNotification("Gerando relatórios em PDF para compartilhar...", "info");
+
+    const fichaBlob = await gerarFichaPDF(reg, reg.serverId);
+    const relatorioBlob = await gerarRelatorioPDF(reg, reg.serverId);
+
+    const clienteClean = (reg.cliente || "cliente").replace(/[^a-zA-Z0-9]/g, "_");
+    const idLabel = reg.serverId ? `ID_${reg.serverId}` : `Form_${reg.id}`;
+
+    const fichaFile = new File([fichaBlob], `Ficha_${idLabel}_${clienteClean}.pdf`, {
+      type: "application/pdf",
+    });
+
+    const relatorioFile = new File([relatorioBlob], `Relatorio_${idLabel}_${clienteClean}.pdf`, {
+      type: "application/pdf",
+    });
+
+    const textoShare = `*PEXO EXATO SOLUTIONS*\nCliente: ${reg.cliente || "-"}\nEquipamento: ${reg.equipamento || "-"}\nServiço: ${reg.servico || "-"}` + (reg.serverId ? `\nID VPS: ${reg.serverId}` : "");
+
+    if (navigator.canShare && navigator.canShare({ files: [fichaFile, relatorioFile] })) {
+      await navigator.share({
+        title: `Relatórios - ${reg.cliente || "Cliente"}`,
+        text: textoShare,
+        files: [fichaFile, relatorioFile],
+      });
+      showNotification("Compartilhado no WhatsApp com sucesso!", "success");
+      return;
+    }
+
+    // Fallback: Baixa os 2 arquivos PDF no dispositivo e abre o WhatsApp
+    const linkFicha = URL.createObjectURL(fichaBlob);
+    const a1 = document.createElement("a");
+    a1.href = linkFicha;
+    a1.download = `Ficha_${idLabel}_${clienteClean}.pdf`;
+    document.body.appendChild(a1);
+    a1.click();
+    document.body.removeChild(a1);
+    URL.revokeObjectURL(linkFicha);
+
+    const linkRel = URL.createObjectURL(relatorioBlob);
+    const a2 = document.createElement("a");
+    a2.href = linkRel;
+    a2.download = `Relatorio_${idLabel}_${clienteClean}.pdf`;
+    document.body.appendChild(a2);
+    a2.click();
+    document.body.removeChild(a2);
+    URL.revokeObjectURL(linkRel);
+
+    const msgWA = encodeURIComponent(
+      `${textoShare}\n\n(Os 2 arquivos PDF foram baixados no seu dispositivo para envio no WhatsApp)`
+    );
+    window.open(`https://api.whatsapp.com/send?text=${msgWA}`, "_blank");
+  } catch (e) {
+    if (e.name === "AbortError") return;
+    console.error("Erro ao compartilhar formulário local:", e);
+    showNotification("Erro ao compartilhar via WhatsApp", "error");
+  }
+}
+
+window.compartilharFormulario = compartilharFormularioLocal;

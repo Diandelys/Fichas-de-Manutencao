@@ -1,6 +1,5 @@
 // ======== EDGE FUNCTION: enviar-documentos ========
-// V3 — Idempotência Server-Side com controle de envios por serverId.
-// Se o PDF já existe no Storage e foi enviado ao WhatsApp, previne re-disparo duplicado.
+// V4 — Suporte a Envio Direto de URLs (Upload Direto do PWA no Storage) + Fallback Base64
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -32,7 +31,8 @@ Deno.serve(async (req: Request) => {
       mensagemRelatorio,
       pdfFichaBase64,
       pdfRelatorioBase64,
-      forceReenvio = false,
+      urlFicha: urlFichaDireta,
+      urlRelatorio: urlRelatorioDireta,
     } = body;
 
     if (!serverId) {
@@ -42,11 +42,11 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    if (!pdfFichaBase64 && !pdfRelatorioBase64) {
+    if (!pdfFichaBase64 && !pdfRelatorioBase64 && !urlFichaDireta && !urlRelatorioDireta) {
       return Response.json(
         {
           error:
-            "Pelo menos um PDF deve ser enviado (pdfFichaBase64 ou pdfRelatorioBase64)",
+            "Pelo menos um PDF (base64 ou URL) deve ser fornecido",
         },
         { status: 400, headers: CORS_HEADERS },
       );
@@ -57,13 +57,9 @@ Deno.serve(async (req: Request) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    const whatsappApiUrl = Deno.env.get("WHATSAPP_API_URL");
-    const whatsappToken = Deno.env.get("WHATSAPP_TOKEN");
-    const whatsappGroupId = Deno.env.get("WHATSAPP_GROUP_ID");
-
-    if (!whatsappApiUrl || !whatsappToken || !whatsappGroupId) {
-      throw new Error("Segredos do WhatsApp não configurados no Supabase");
-    }
+    const whatsappApiUrl = Deno.env.get("WHATSAPP_API_URL") || "https://api.leadfinder.com.br/integracao/enviarMensagem/6B2991B488/ARQUIVO";
+    const whatsappToken = Deno.env.get("WHATSAPP_TOKEN") || "58103127083906988C16EAD628F241E78C350689710608F82A91D2D3C4D36757";
+    const whatsappGroupId = Deno.env.get("WHATSAPP_GROUP_ID") || "120363021586402490-group";
 
     const resultado: {
       ok: boolean;
@@ -84,10 +80,29 @@ Deno.serve(async (req: Request) => {
     };
 
     // ======== PROCESSAR FICHA ========
-    if (pdfFichaBase64) {
+    if (urlFichaDireta) {
+      resultado.fichaUpload = true;
+      resultado.urlFicha = urlFichaDireta;
+      try {
+        console.log(`📱 Enviando Ficha via URL direta (serverId: ${serverId})...`);
+        await enviarWhatsApp(
+          whatsappApiUrl,
+          whatsappToken,
+          whatsappGroupId,
+          urlFichaDireta,
+          mensagemFicha ?? `Ficha de Materiais (Nº ${serverId})`,
+        );
+        resultado.fichaWhatsapp = true;
+        console.log("✅ Ficha enviada ao WhatsApp");
+      } catch (errWA) {
+        const msg = `WhatsApp ficha: ${errWA instanceof Error ? errWA.message : String(errWA)}`;
+        console.error("❌", msg);
+        resultado.erros.push(msg);
+      }
+    } else if (pdfFichaBase64) {
       const nomeFicha = `materiais_${serverId}.pdf`;
       try {
-        console.log(`📤 Upload da Ficha (serverId: ${serverId})...`);
+        console.log(`📤 Upload da Ficha via Base64 (serverId: ${serverId})...`);
         const fichaBytes = base64ToBytes(pdfFichaBase64);
 
         const { error: errUpload } = await supabase.storage
@@ -100,10 +115,10 @@ Deno.serve(async (req: Request) => {
         if (errUpload) throw new Error(`Upload ficha: ${errUpload.message}`);
 
         resultado.fichaUpload = true;
-        const { data: urlFicha } = supabase.storage
+        const { data: urlFichaData } = supabase.storage
           .from(BUCKET)
           .getPublicUrl(nomeFicha);
-        resultado.urlFicha = urlFicha.publicUrl;
+        resultado.urlFicha = urlFichaData.publicUrl;
         console.log("✅ Ficha no storage");
 
         try {
@@ -112,7 +127,7 @@ Deno.serve(async (req: Request) => {
             whatsappApiUrl,
             whatsappToken,
             whatsappGroupId,
-            urlFicha.publicUrl,
+            urlFichaData.publicUrl,
             mensagemFicha ?? `Ficha de Materiais (Nº ${serverId})`,
           );
           resultado.fichaWhatsapp = true;
@@ -130,10 +145,29 @@ Deno.serve(async (req: Request) => {
     }
 
     // ======== PROCESSAR RELATÓRIO ========
-    if (pdfRelatorioBase64) {
+    if (urlRelatorioDireta) {
+      resultado.relatorioUpload = true;
+      resultado.urlRelatorio = urlRelatorioDireta;
+      try {
+        console.log(`📱 Enviando Relatório via URL direta (serverId: ${serverId})...`);
+        await enviarWhatsApp(
+          whatsappApiUrl,
+          whatsappToken,
+          whatsappGroupId,
+          urlRelatorioDireta,
+          mensagemRelatorio ?? `Relatório de Serviço (Nº ${serverId})`,
+        );
+        resultado.relatorioWhatsapp = true;
+        console.log("✅ Relatório enviado ao WhatsApp");
+      } catch (errWA) {
+        const msg = `WhatsApp relatório: ${errWA instanceof Error ? errWA.message : String(errWA)}`;
+        console.error("❌", msg);
+        resultado.erros.push(msg);
+      }
+    } else if (pdfRelatorioBase64) {
       const nomeRelatorio = `relatorio_${serverId}.pdf`;
       try {
-        console.log(`📤 Upload do Relatório (serverId: ${serverId})...`);
+        console.log(`📤 Upload do Relatório via Base64 (serverId: ${serverId})...`);
         const relatorioBytes = base64ToBytes(pdfRelatorioBase64);
 
         const { error: errUpload } = await supabase.storage
@@ -147,10 +181,10 @@ Deno.serve(async (req: Request) => {
           throw new Error(`Upload relatório: ${errUpload.message}`);
 
         resultado.relatorioUpload = true;
-        const { data: urlRelatorio } = supabase.storage
+        const { data: urlRelatorioData } = supabase.storage
           .from(BUCKET)
           .getPublicUrl(nomeRelatorio);
-        resultado.urlRelatorio = urlRelatorio.publicUrl;
+        resultado.urlRelatorio = urlRelatorioData.publicUrl;
         console.log("✅ Relatório no storage");
 
         try {
@@ -159,7 +193,7 @@ Deno.serve(async (req: Request) => {
             whatsappApiUrl,
             whatsappToken,
             whatsappGroupId,
-            urlRelatorio.publicUrl,
+            urlRelatorioData.publicUrl,
             mensagemRelatorio ?? `Relatório de Serviço (Nº ${serverId})`,
           );
           resultado.relatorioWhatsapp = true;
@@ -176,8 +210,8 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    const fichaOk = !pdfFichaBase64 || resultado.fichaWhatsapp;
-    const relatorioOk = !pdfRelatorioBase64 || resultado.relatorioWhatsapp;
+    const fichaOk = (!urlFichaDireta && !pdfFichaBase64) || resultado.fichaWhatsapp;
+    const relatorioOk = (!urlRelatorioDireta && !pdfRelatorioBase64) || resultado.relatorioWhatsapp;
     resultado.ok = fichaOk && relatorioOk;
 
     const statusHttp = resultado.ok ? 200 : 207;

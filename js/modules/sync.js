@@ -41,6 +41,31 @@ function fetchWithTimeout(url, options, timeoutMs = 60000) {
 }
 
 /**
+ * Realiza o upload binário direto do Blob para o Supabase Storage
+ */
+async function uploadDirectPdfToStorage(blob, fileName) {
+  const uploadUrl = `${SUPABASE_CONFIG.URL}/storage/v1/object/${SUPABASE_CONFIG.BUCKET}/${fileName}`;
+
+  const response = await fetchWithTimeout(uploadUrl, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${SUPABASE_CONFIG.ANON_KEY}`,
+      apikey: SUPABASE_CONFIG.ANON_KEY,
+      "Content-Type": "application/pdf",
+      "x-upsert": "true",
+    },
+    body: blob,
+  }, 60000);
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`Upload direto do PDF (${fileName}) falhou [${response.status}]: ${errText}`);
+  }
+
+  return `${SUPABASE_CONFIG.URL}/storage/v1/object/public/${SUPABASE_CONFIG.BUCKET}/${fileName}`;
+}
+
+/**
  * Ponto de entrada unificado para execução de sincronização com Web Locks API
  */
 export async function runSingleFlightSync(isManual = false) {
@@ -196,20 +221,36 @@ async function processSingleFormPdfAndEdge(form) {
     ].join("\n");
 
     if (!currentForm.fichaWhatsapp) {
-      console.log(`[SyncEngine] Gerando PDF da Ficha para serverId ${serverId}...`);
-      const fichaBlob = await gerarFichaPDF(currentForm, serverId);
-      payload.pdfFichaBase64 = await blobToBase64(fichaBlob);
+      if (currentForm.urlFicha) {
+        payload.urlFicha = currentForm.urlFicha;
+      } else {
+        console.log(`[SyncEngine] Gerando PDF da Ficha para serverId ${serverId}...`);
+        const fichaBlob = await gerarFichaPDF(currentForm, serverId);
+        const nomeFicha = `materiais_${serverId}.pdf`;
+        console.log(`[SyncEngine] Upload binário direto da Ficha (${nomeFicha}) para Supabase Storage...`);
+        const publicUrlFicha = await uploadDirectPdfToStorage(fichaBlob, nomeFicha);
+        payload.urlFicha = publicUrlFicha;
+        currentForm.urlFicha = publicUrlFicha;
+      }
       payload.mensagemFicha = `Ficha de Materiais (Nº ${serverId})\n\n${detalhes}`;
     }
 
     if (!currentForm.relatorioWhatsapp) {
-      console.log(`[SyncEngine] Gerando PDF do Relatório para serverId ${serverId}...`);
-      const relatorioBlob = await gerarRelatorioPDF(currentForm, serverId);
-      payload.pdfRelatorioBase64 = await blobToBase64(relatorioBlob);
+      if (currentForm.urlRelatorio) {
+        payload.urlRelatorio = currentForm.urlRelatorio;
+      } else {
+        console.log(`[SyncEngine] Gerando PDF do Relatório para serverId ${serverId}...`);
+        const relatorioBlob = await gerarRelatorioPDF(currentForm, serverId);
+        const nomeRelatorio = `relatorio_${serverId}.pdf`;
+        console.log(`[SyncEngine] Upload binário direto do Relatório (${nomeRelatorio}) para Supabase Storage...`);
+        const publicUrlRelatorio = await uploadDirectPdfToStorage(relatorioBlob, nomeRelatorio);
+        payload.urlRelatorio = publicUrlRelatorio;
+        currentForm.urlRelatorio = publicUrlRelatorio;
+      }
       payload.mensagemRelatorio = `Relatório de Serviço (Nº ${serverId})\n\n${detalhes}`;
     }
 
-    console.log(`[SyncEngine] Disparando Edge Function para serverId ${serverId}...`);
+    console.log(`[SyncEngine] Disparando Edge Function com URLs leves para serverId ${serverId}...`);
     const response = await fetchWithTimeout(SUPABASE_CONFIG.EDGE_FUNCTION_URL, {
       method: "POST",
       headers: {
@@ -217,7 +258,7 @@ async function processSingleFormPdfAndEdge(form) {
         Authorization: `Bearer ${SUPABASE_CONFIG.ANON_KEY}`,
       },
       body: JSON.stringify(payload),
-    }, 90000);
+    }, 30000);
 
     const resultado = await response.json();
     console.log(`[SyncEngine] Resultado Edge Function (HTTP ${response.status}):`, resultado);

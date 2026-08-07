@@ -1216,12 +1216,10 @@ async function salvarFormularioLocal() {
 
     showNotification(
       registroExistente
-        ? "Formulário atualizado! Recarregando..."
-        : "Formulário salvo! Recarregando...",
+        ? "Formulário atualizado com sucesso!"
+        : "Formulário salvo com sucesso!",
       "success",
     );
-
-    setTimeout(() => window.location.reload(), 1500);
   } catch (e) {
     console.error("Erro ao salvar:", e);
     showNotification("Erro ao salvar formulário", "error");

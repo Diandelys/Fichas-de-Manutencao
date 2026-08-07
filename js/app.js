@@ -67,12 +67,8 @@ function setupSyncAndActionButtons() {
       showNotification("Formulário salvo com sucesso!", "success");
       await renderFormulariosSalvosUI();
 
-      // Dispara sincronização em segundo plano
+      // Dispara sincronização em segundo plano sem matar o processo recarregando a página
       runSingleFlightSync(false);
-
-      setTimeout(() => {
-        window.location.reload();
-      }, 1200);
     } catch (e) {
       console.error("Erro ao salvar formulário:", e);
       showNotification("Erro ao salvar formulário localmente", "error");

@@ -6,11 +6,11 @@ export const VPS_ENDPOINTS = {
 };
 
 export const SUPABASE_CONFIG = {
-  URL: "https://sqiqmpgzjxjjztuzlewg.supabase.co",
+  URL: "https://hluyoxmciftcxuudpfzs.supabase.co",
   ANON_KEY:
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNxaXFtcGd6anhqanp0dXpsZXdnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk2MDEzMzIsImV4cCI6MjA4NTE3NzMzMn0.o-IKqiSvBdUZoKiWHi2TzIBuXPG1jcL2JdUwedNM4y8",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhsdXlveG1jaWZ0Y3h1dWRwZnpzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxMjMxMjMsImV4cCI6MjEwMTY5OTEyM30.RJKKNW6fymQDTCzfGIxnaU7LfhkGdkgYpr-OVzv1iJs",
   EDGE_FUNCTION_URL:
-    "https://sqiqmpgzjxjjztuzlewg.supabase.co/functions/v1/enviar-documentos",
+    "https://hluyoxmciftcxuudpfzs.supabase.co/functions/v1/enviar-documentos",
   BUCKET: "pdfs-temporarios",
 };
 
@@ -40,4 +40,4 @@ export const SYNC_CONFIG = {
   STORAGE_KEY_DRAFT: "formularioDraft",
 };
 
-export const LOGO_PATH = "Logo.png";
+export const LOGO_PATH = "assets/img/Logo.png";

@@ -18,7 +18,9 @@
   <!-- Google Fonts: Inter & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
 
   <!-- Compiled Tailwind & PesoExato CSS -->
   <link rel="stylesheet" href="./css/tailwind.min.css" />
@@ -136,32 +138,39 @@
 
         <div class="flex items-center space-x-4 shrink-0 sm:hidden">
           <!-- Badge Online/Offline no Mobile (Com espaçamento amplo à esquerda do botão de recolher) -->
-          <div id="status-mobile" class="flex items-center text-[10px] font-medium px-2.5 py-1 rounded-full bg-[#F2F1EE] shrink-0">
+          <div id="status-mobile"
+            class="flex items-center text-[10px] font-medium px-2.5 py-1 rounded-full bg-[#F2F1EE] shrink-0">
             <span id="status-indicator" class="status-indicator status-offline"></span>
             <span id="status-text" class="text-[#6B6965]">Offline</span>
           </div>
 
           <!-- Botão de Expandir/Recolher no Mobile -->
-          <button id="toggle-header-controls-btn" class="text-[#6B6965] hover:text-[#0F0E0D] p-1.5 rounded bg-[#F2F1EE] border border-[#E5E7EB] text-xs flex items-center justify-center cursor-pointer shrink-0" title="Recolher / Expandir botões">
+          <button id="toggle-header-controls-btn"
+            class="text-[#6B6965] hover:text-[#0F0E0D] p-1.5 rounded bg-[#F2F1EE] border border-[#E5E7EB] text-xs flex items-center justify-center cursor-pointer shrink-0"
+            title="Recolher / Expandir botões">
             <i id="toggle-controls-icon" class="fas fa-chevron-down text-[11px]"></i>
           </button>
         </div>
       </div>
 
       <!-- Container dos Controles: no PC fica alinhado à direita com a Badge ao lado do botão Sync -->
-      <div id="header-controls-container" class="hidden sm:flex flex-row items-center justify-center sm:justify-end gap-2 pt-2 mt-2 border-t border-[#E5E7EB] sm:border-0 sm:mt-0 sm:pt-0 sm:gap-2.5">
+      <div id="header-controls-container"
+        class="hidden sm:flex flex-row items-center justify-center sm:justify-end gap-2 pt-2 mt-2 border-t border-[#E5E7EB] sm:border-0 sm:mt-0 sm:pt-0 sm:gap-2.5">
         <!-- Badge Online/Offline no PC (Fica à esquerda do botão Sync) -->
-        <div id="status-desktop" class="hidden sm:flex items-center text-xs font-medium px-2.5 py-1 rounded-full bg-[#F2F1EE] shrink-0 mr-1">
+        <div id="status-desktop"
+          class="hidden sm:flex items-center text-xs font-medium px-2.5 py-1 rounded-full bg-[#F2F1EE] shrink-0 mr-1">
           <span class="status-indicator status-offline"></span>
           <span id="status-text-desktop" class="text-[#6B6965]">Offline</span>
         </div>
 
-        <button id="toggle-auto-sync-btn" class="pe-btn pe-btn-secondary text-[11px] sm:text-xs py-1 px-2.5 sm:py-1.5 sm:px-3 h-auto min-h-0 leading-tight"
+        <button id="toggle-auto-sync-btn"
+          class="pe-btn pe-btn-secondary text-[11px] sm:text-xs py-1 px-2.5 sm:py-1.5 sm:px-3 h-auto min-h-0 leading-tight"
           aria-pressed="false" title="Alterna entre sincronização automática e manual">
           <i class="fas fa-sync-alt text-[10px] sm:text-xs"></i>
           <span id="toggle-auto-sync-text">Sync: Ativo</span>
         </button>
-        <button id="sync-btn" class="pe-btn pe-btn-primary text-[11px] sm:text-xs py-1 px-2.5 sm:py-1.5 sm:px-3 h-auto min-h-0 leading-tight relative">
+        <button id="sync-btn"
+          class="pe-btn pe-btn-primary text-[11px] sm:text-xs py-1 px-2.5 sm:py-1.5 sm:px-3 h-auto min-h-0 leading-tight relative">
           <i class="fas fa-sync-alt text-[10px] sm:text-xs"></i> Sincronizar
           <span id="sync-badge"
             class="absolute -top-1.5 -right-1.5 bg-[#DC2626] text-white rounded-full text-[9px] w-4 h-4 flex items-center justify-center hidden pe-mono">0</span>
@@ -183,14 +192,12 @@
           <div class="space-y-4">
             <div>
               <label for="cliente" class="pe-label pe-label-required">Cliente</label>
-              <input type="text" id="cliente" required placeholder="Nome / Razão Social do cliente"
-                class="pe-input" />
+              <input type="text" id="cliente" required placeholder="Nome / Razão Social do cliente" class="pe-input" />
             </div>
 
             <div>
               <label for="cidade" class="pe-label pe-label-required">Cidade - UF</label>
-              <input type="text" id="cidade" required placeholder="Cidade - UF"
-                class="pe-input" />
+              <input type="text" id="cidade" required placeholder="Cidade - UF" class="pe-input" />
             </div>
 
             <div>
@@ -218,8 +225,7 @@
 
             <div>
               <label for="tecnico" class="pe-label pe-label-required">Técnico Responsável</label>
-              <input type="text" id="tecnico" required placeholder="Nome do técnico"
-                class="pe-input" />
+              <input type="text" id="tecnico" required placeholder="Nome do técnico" class="pe-input" />
             </div>
 
             <div>
@@ -258,7 +264,7 @@
             </div>
 
             <div>
-              <label for="veiculo" class="pe-label">Veículo / Placa</label>
+              <label for="veiculo" class="pe-label">Veículo</label>
               <input type="text" id="veiculo" placeholder="Identificação do veículo" class="pe-input" />
             </div>
 
@@ -325,8 +331,10 @@
 
       <div class="pe-card-body">
         <div>
-          <label for="relatorio-maquina" class="pe-label pe-label-required">Defeitos Encontrados e Soluções Aplicadas</label>
-          <textarea id="relatorio-maquina" rows="5" required placeholder="Descreva detalhadamente os sintomas, testes metrológicos efetuados e ações corretivas..."
+          <label for="relatorio-maquina" class="pe-label pe-label-required">Defeitos Encontrados e Soluções
+            Aplicadas</label>
+          <textarea id="relatorio-maquina" rows="5" required
+            placeholder="Descreva detalhadamente os sintomas, testes efetuados e ações corretivas..."
             class="pe-input"></textarea>
         </div>
       </div>
@@ -371,11 +379,13 @@
             </div>
             <canvas id="assinatura-cliente" class="signature-canvas w-full h-40"></canvas>
             <div class="flex items-center justify-between mt-3">
-              <button id="limpar-cliente" class="text-xs text-[#DC2626] hover:underline flex items-center gap-1 font-medium">
+              <button id="limpar-cliente"
+                class="text-xs text-[#DC2626] hover:underline flex items-center gap-1 font-medium">
                 <i class="fas fa-eraser"></i> Limpar Assinatura
               </button>
               <label class="inline-flex items-center cursor-pointer text-xs text-[#6B6965]">
-                <input type="checkbox" id="lock-cliente" class="rounded border-[#E5E7EB] text-[#1B4F8A] mr-1.5 focus:ring-[#1B4F8A]" />
+                <input type="checkbox" id="lock-cliente"
+                  class="rounded border-[#E5E7EB] text-[#1B4F8A] mr-1.5 focus:ring-[#1B4F8A]" />
                 Bloquear Assinatura
               </label>
             </div>
@@ -391,11 +401,13 @@
             </div>
             <canvas id="assinatura-tecnico" class="signature-canvas w-full h-40"></canvas>
             <div class="flex items-center justify-between mt-3">
-              <button id="limpar-tecnico" class="text-xs text-[#DC2626] hover:underline flex items-center gap-1 font-medium">
+              <button id="limpar-tecnico"
+                class="text-xs text-[#DC2626] hover:underline flex items-center gap-1 font-medium">
                 <i class="fas fa-eraser"></i> Limpar Assinatura
               </button>
               <label class="inline-flex items-center cursor-pointer text-xs text-[#6B6965]">
-                <input type="checkbox" id="lock-tecnico" class="rounded border-[#E5E7EB] text-[#1B4F8A] mr-1.5 focus:ring-[#1B4F8A]" />
+                <input type="checkbox" id="lock-tecnico"
+                  class="rounded border-[#E5E7EB] text-[#1B4F8A] mr-1.5 focus:ring-[#1B4F8A]" />
                 Bloquear Assinatura
               </label>
             </div>
@@ -414,11 +426,10 @@
       <div class="pe-card-body">
         <div class="mb-4">
           <div class="flex flex-col sm:flex-row gap-3">
-            <input type="text" id="material-input" list="materiais-list" placeholder="Código ou descrição da peça/material"
+            <input type="text" id="material-input" list="materiais-list" placeholder="Código ou nome da peça"
               class="pe-input flex-1 pe-mono" />
             <datalist id="materiais-list"></datalist>
-            <input type="number" id="material-qtd" min="1" placeholder="Qtd"
-              class="pe-input w-full sm:w-28 pe-mono" />
+            <input type="number" id="material-qtd" min="1" placeholder="Qtd" class="pe-input w-full sm:w-28 pe-mono" />
             <button id="add-material-btn" class="pe-btn pe-btn-primary">
               <i class="fas fa-plus"></i> Adicionar
             </button>
@@ -429,7 +440,7 @@
       </div>
     </section>
 
-    <div class="flex flex-col sm:flex-row sm:justify-end gap-4 mt-8">
+    <div class="flex flex-col sm:flex-row sm:justify-end gap-4 mt-8 mb-12 sm:mb-16">
       <button id="export-btn" class="pe-btn pe-btn-primary pe-btn-lg">
         <i class="fas fa-download"></i> Salvar e Gerar Relatório
       </button>

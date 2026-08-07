@@ -63,7 +63,7 @@ function setupSyncAndActionButtons() {
     try {
       const data = collectFormData();
       const saved = await saveFormulario(data, state.formularioEmEdicaoId);
-      
+
       showNotification("Formulário salvo com sucesso!", "success");
       await renderFormulariosSalvosUI();
 
@@ -102,7 +102,7 @@ async function renderFormulariosSalvosUI() {
   if (!container) {
     container = document.createElement("section");
     container.id = containerId;
-    container.className = "form-section";
+    container.className = "pe-card mt-12 mb-12";
     const main = document.querySelector("main");
     if (main) main.appendChild(container);
     else return;
@@ -112,13 +112,17 @@ async function renderFormulariosSalvosUI() {
   const pendentes = registros.filter((r) => !r.sincronizado).length;
 
   container.innerHTML = `
-    <h2 class="text-xl font-semibold flex items-center">
-      <i class="fas fa-history text-blue-600 mr-2"></i> Formulários Salvos
-      <span class="ml-2 text-sm bg-gray-200 text-gray-700 px-2 py-1 rounded-full">
+    <div class="pe-card-header">
+      <h2 class="text-base sm:text-lg font-semibold text-[#0F0E0D] flex items-center">
+        <i class="fas fa-history text-[#1B4F8A] mr-2.5"></i> Formulários Salvos
+      </h2>
+      <span class="pe-badge pe-badge-neutral pe-mono font-medium">
         ${pendentes} pendente(s)
       </span>
-    </h2>
-    <div id="lista-formularios" class="space-y-2 mt-4"></div>
+    </div>
+    <div class="pe-card-body">
+      <div id="lista-formularios" class="space-y-3"></div>
+    </div>
   `;
 
   const lista = container.querySelector("#lista-formularios");
@@ -141,7 +145,7 @@ async function renderFormulariosSalvosUI() {
         ${statusIcon}
         <div class="ml-3">
           <div class="font-medium text-gray-800">${reg.cliente || "—"} (${reg.equipamento || "—"})</div>
-          <div class="text-xs text-gray-500">${reg.servico || "—"} • ${dataLegivel} • ID VPS: ${reg.serverId || "Pendente"}</div>
+          <div class="text-xs text-gray-500">${reg.servico || "—"} • ${dataLegivel} • ID: ${reg.serverId || "Pendente"}</div>
         </div>
       </div>
       <div class="flex space-x-2">

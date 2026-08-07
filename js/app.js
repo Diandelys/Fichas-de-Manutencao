@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // 5. Registrar Service Worker
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("./sw.js?v=0140")
+      navigator.serviceWorker.register("./sw.js?v=0143")
         .then((reg) => console.log("✅ SW registrado:", reg.scope))
         .catch((err) => console.warn("⚠️ Falha ao registrar SW:", err));
 

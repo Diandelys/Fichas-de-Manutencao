@@ -433,17 +433,17 @@ function setupSignatureCanvas(canvas, ctx, tipo) {
   function draw(x, y, isCliente) {
     const config = isCliente
       ? {
-          ctx: ctxCliente,
-          drawing: isDrawingCliente,
-          lastX: lastXCliente,
-          lastY: lastYCliente,
-        }
+        ctx: ctxCliente,
+        drawing: isDrawingCliente,
+        lastX: lastXCliente,
+        lastY: lastYCliente,
+      }
       : {
-          ctx: ctxTecnico,
-          drawing: isDrawingTecnico,
-          lastX: lastXTecnico,
-          lastY: lastYTecnico,
-        };
+        ctx: ctxTecnico,
+        drawing: isDrawingTecnico,
+        lastX: lastXTecnico,
+        lastY: lastYTecnico,
+      };
 
     if (!config.drawing) return;
 
@@ -1560,7 +1560,7 @@ async function startApp() {
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
         navigator.serviceWorker
-          .register("../sw.js?v=0139")
+          .register("./sw.js?v=0143")
           .then((reg) => {
             console.log(
               "Service Worker registrado com sucesso. Scope:",

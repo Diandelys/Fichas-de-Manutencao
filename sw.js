@@ -1,7 +1,7 @@
 // ======== SERVICE WORKER (PWA & OFFLINE CACHE) ========
 importScripts("https://cdn.jsdelivr.net/npm/idb@8/build/umd.js");
 
-const CACHE_NAME = "formulario-cache-v0142";
+const CACHE_NAME = "formulario-cache-v0143";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -12,7 +12,7 @@ const CORE_ASSETS = [
 
 // ======== EVENTO DE INSTALAÇÃO ========
 self.addEventListener("install", (event) => {
-  console.log("🟢 SW: Instalando v0140...");
+  console.log("🟢 SW: Instalando v0143...");
   event.waitUntil(
     caches
       .open(CACHE_NAME)
@@ -26,7 +26,7 @@ self.addEventListener("install", (event) => {
 
 // ======== EVENTO DE ATIVAÇÃO ========
 self.addEventListener("activate", (event) => {
-  console.log("🔵 SW: Ativando v0140...");
+  console.log("🔵 SW: Ativando v0143...");
   event.waitUntil(
     caches
       .keys()

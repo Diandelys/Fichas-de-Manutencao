@@ -1,5 +1,5 @@
 // ======== PONTO DE ENTRADA UNIFICADO DA APLICAÇÃO (BOOTSTRAP) ========
-import { initStorage, saveFormulario, getAllFormularios, deleteFormulario, purgeLocalTestRecords } from "./modules/storage.js";
+import { initStorage, saveFormulario, getFormulario, getAllFormularios, deleteFormulario, purgeLocalTestRecords } from "./modules/storage.js";
 import { runSingleFlightSync } from "./modules/sync.js";
 import { initUIControls, collectFormData, validateForm, showNotification, carregarFormularioParaEdicao, state } from "./modules/ui.js";
 import { SYNC_CONFIG } from "./modules/config.js";

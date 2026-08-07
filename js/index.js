@@ -1446,8 +1446,8 @@ async function compartilharFormulario(id) {
       idStr,
     );
 
-    const nomeFicha = `Ficha de Materiais (Nº ${idStr}).pdf`;
-    const nomeRelatorio = `Relatório de Serviço (Nº ${idStr}).pdf`;
+    const nomeFicha = `Ficha de Materiais (No ${idStr}).pdf`;
+    const nomeRelatorio = `Relatorio de Servico (No ${idStr}).pdf`;
 
     const fichaFile = new File([fichaBlob], nomeFicha, {
       type: "application/pdf",

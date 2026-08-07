@@ -197,8 +197,8 @@ export async function compartilharFormularioLocal(id) {
     const fichaBlob = await gerarFichaPDF(reg, reg.serverId);
     const relatorioBlob = await gerarRelatorioPDF(reg, reg.serverId);
 
-    const nomeFicha = `Ficha de Materiais (Nº ${idStr}).pdf`;
-    const nomeRelatorio = `Relatório de Serviço (Nº ${idStr}).pdf`;
+    const nomeFicha = `Ficha de Materiais (No ${idStr}).pdf`;
+    const nomeRelatorio = `Relatorio de Servico (No ${idStr}).pdf`;
 
     const fichaFile = new File([fichaBlob], nomeFicha, {
       type: "application/pdf",

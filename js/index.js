@@ -1282,19 +1282,16 @@ async function renderFormulariosSalvos() {
     // ======== Renderização de itens ========
     registros.forEach((registro) => {
       const dataLegivel = new Date(registro.id).toLocaleString("pt-BR");
-      const statusTag = registro.sincronizado
-        ? '<span class="pe-badge pe-badge-success"><i class="fas fa-check-circle text-[10px]"></i> Sincronizado</span>'
-        : '<span class="pe-badge pe-badge-warning"><i class="fas fa-clock text-[10px]"></i> Pendente</span>';
+      const borderClass = registro.sincronizado
+        ? "border-l-4 border-l-[#16A34A]"
+        : "border-l-4 border-l-[#EAB308]";
 
       const item = document.createElement("div");
-      item.className = "bg-white p-3.5 rounded-lg shadow-2xs border border-[#E5E7EB] space-y-2.5";
+      item.className = `bg-white p-3.5 rounded-lg shadow-2xs border border-[#E5E7EB] ${borderClass} space-y-2.5`;
       item.innerHTML = `
-					<!-- Linha 1: Cliente (Nº de Série) + Tag de Status -->
-					<div class="flex flex-wrap items-center justify-between gap-2">
-						<div class="font-semibold text-[#0F0E0D] text-sm sm:text-base leading-snug">
-							${registro.cliente || "—"} <span class="text-xs sm:text-sm font-normal text-[#6B6965]">(Nº de Série: ${registro.numeroSerie || registro.equipamento || "—"})</span>
-						</div>
-						${statusTag}
+					<!-- Linha 1: Cliente (Nº de Série) -->
+					<div class="font-semibold text-[#0F0E0D] text-sm sm:text-base leading-snug">
+						${registro.cliente || "—"} <span class="text-xs sm:text-sm font-normal text-[#6B6965]">(Nº de Série: ${registro.numeroSerie || registro.equipamento || "—"})</span>
 					</div>
 
 					<!-- Linha 2: Serviço, data e hora, ID -->

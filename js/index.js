@@ -1276,25 +1276,16 @@ async function renderFormulariosSalvos() {
 							<div class="text-sm text-gray-500">${registro.servico || "—"} • ${dataLegivel} • Nº de Série: ${registro.numeroSerie}</div>
 						</div>
 					</div>
-					<div class="flex space-x-2">
-						<button class="btn-secondary px-3 py-1 rounded edit-btn" data-id="${registro.id}">
-							<i class="fas fa-edit"></i> Editar
+					<div class="flex items-center space-x-2">
+						<button class="pe-btn pe-btn-sm bg-[#16A34A] hover:bg-[#15803D] text-white border-0 shadow-2xs py-1 px-2.5 rounded-md flex items-center justify-center share-btn" data-id="${registro.id}" title="Compartilhar no WhatsApp">
+							<i class="fab fa-whatsapp text-sm"></i>
 						</button>
-						<button class="btn-secondary px-3 py-1 rounded text-red-600 delete-btn" data-id="${registro.id}">
-							<i class="fas fa-trash"></i>
+						<button class="pe-btn pe-btn-secondary pe-btn-sm border border-[#CBD5E1] hover:border-[#94A3B8] text-[#0F0E0D] font-medium py-1 px-2.5 rounded-md flex items-center gap-1.5 shadow-2xs edit-btn" data-id="${registro.id}">
+							<i class="fas fa-edit text-xs"></i> Editar
 						</button>
-
-						${
-              registro.sincronizado && registro.serverId
-                ? `
-							<button class="btn-secondary px-3 py-1 rounded text-green-600 share-btn"
-									data-id="${registro.id}"
-									title="Compartilhar no WhatsApp">
-								<i class="fab fa-whatsapp"></i>
-							</button>
-							`
-                : ""
-            }
+						<button class="pe-btn pe-btn-secondary pe-btn-sm border border-[#CBD5E1] hover:border-[#94A3B8] text-[#DC2626] hover:bg-red-50 py-1 px-2.5 rounded-md flex items-center justify-center shadow-2xs delete-btn" data-id="${registro.id}" title="Excluir Formulário">
+							<i class="fas fa-trash text-xs"></i>
+						</button>
 					</div>
 				`;
       lista.appendChild(item);
@@ -1476,6 +1467,7 @@ async function compartilharFormulario(id) {
     showNotification("Erro ao compartilhar", "error");
   }
 }
+window.compartilharFormulario = compartilharFormulario;
 
 // ======== Helper: Renderização de assinaturas em canvas ========
 function drawDataUrlOnCanvas(dataUrl, canvas, ctx) {

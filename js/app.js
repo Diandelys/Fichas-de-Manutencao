@@ -148,15 +148,27 @@ async function renderFormulariosSalvosUI() {
           <div class="text-xs text-gray-500">${reg.servico || "—"} • ${dataLegivel} • ID: ${reg.serverId || "Pendente"}</div>
         </div>
       </div>
-      <div class="flex space-x-2">
-        <button class="btn-secondary px-3 py-1 text-xs rounded edit-btn" data-id="${reg.id}">
-          <i class="fas fa-edit mr-1"></i> Editar
+      <div class="flex items-center space-x-2">
+        <button class="pe-btn pe-btn-sm bg-[#16A34A] hover:bg-[#15803D] text-white border-0 shadow-2xs py-1 px-2.5 rounded-md flex items-center justify-center share-btn" data-id="${reg.id}" title="Compartilhar no WhatsApp">
+          <i class="fab fa-whatsapp text-sm"></i>
         </button>
-        <button class="btn-secondary px-3 py-1 text-xs rounded delete-btn text-red-600" data-id="${reg.id}">
-          <i class="fas fa-trash"></i>
+        <button class="pe-btn pe-btn-secondary pe-btn-sm border border-[#CBD5E1] hover:border-[#94A3B8] text-[#0F0E0D] font-medium py-1 px-2.5 rounded-md flex items-center gap-1.5 shadow-2xs edit-btn" data-id="${reg.id}">
+          <i class="fas fa-edit text-xs"></i> Editar
+        </button>
+        <button class="pe-btn pe-btn-secondary pe-btn-sm border border-[#CBD5E1] hover:border-[#94A3B8] text-[#DC2626] hover:bg-red-50 py-1 px-2.5 rounded-md flex items-center justify-center shadow-2xs delete-btn" data-id="${reg.id}" title="Excluir Formulário">
+          <i class="fas fa-trash text-xs"></i>
         </button>
       </div>
     `;
+
+    item.querySelector(".share-btn")?.addEventListener("click", (e) => {
+      const id = e.currentTarget.dataset.id;
+      if (typeof window.compartilharFormulario === "function") {
+        window.compartilharFormulario(id);
+      } else {
+        alert("Compartilhando registro ID: " + id);
+      }
+    });
 
     item.querySelector(".edit-btn")?.addEventListener("click", (e) => {
       const id = e.currentTarget.dataset.id;

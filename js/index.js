@@ -2300,21 +2300,19 @@ function updateAutoSyncToggleUI() {
   }
 
   if (syncState.autoSyncBlocked) {
-    toggleAutoSyncText.textContent = "Auto Sync: Bloqueada";
-    toggleAutoSyncBtn.classList.remove("btn-secondary");
-    toggleAutoSyncBtn.classList.add(
-      "bg-red-100",
-      "text-red-800",
-      "border",
-      "border-red-300",
-    );
+    toggleAutoSyncText.textContent = "Sync: Bloqueado";
+    toggleAutoSyncBtn.classList.remove("pe-btn-secondary", "btn-secondary");
+    toggleAutoSyncBtn.classList.add("pe-btn-danger", "bg-[#DC2626]", "text-white");
     toggleAutoSyncBtn.setAttribute("aria-pressed", "true");
     toggleAutoSyncBtn.title = "Clique para ATIVAR a sincronização automática";
     console.log("🔴 UI: Mostrando como BLOQUEADA");
   } else {
-    toggleAutoSyncText.textContent = "Auto Sync: Ativa";
-    toggleAutoSyncBtn.classList.add("btn-secondary");
+    toggleAutoSyncText.textContent = "Sync: Ativo";
+    toggleAutoSyncBtn.classList.add("pe-btn-secondary");
     toggleAutoSyncBtn.classList.remove(
+      "pe-btn-danger",
+      "bg-[#DC2626]",
+      "text-white",
       "bg-red-100",
       "text-red-800",
       "border",

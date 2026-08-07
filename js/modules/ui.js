@@ -60,15 +60,15 @@ export function initAutoSyncToggle() {
   function updateUI() {
     const isBlocked = localStorage.getItem(SYNC_CONFIG.STORAGE_KEY_AUTO_SYNC) === "true";
     if (isBlocked) {
-      text.textContent = "Auto Sync: Bloqueada";
-      btn.classList.remove("btn-secondary");
-      btn.classList.add("bg-red-100", "text-red-800", "border", "border-red-300");
+      text.textContent = "Sync: Bloqueado";
+      btn.classList.remove("pe-btn-secondary", "btn-secondary");
+      btn.classList.add("pe-btn-danger", "bg-[#DC2626]", "text-white");
       btn.setAttribute("aria-pressed", "true");
       btn.title = "Clique para ATIVAR a sincronização automática";
     } else {
-      text.textContent = "Auto Sync: Ativa";
-      btn.classList.add("btn-secondary");
-      btn.classList.remove("bg-red-100", "text-red-800", "border", "border-red-300");
+      text.textContent = "Sync: Ativo";
+      btn.classList.add("pe-btn-secondary");
+      btn.classList.remove("pe-btn-danger", "bg-[#DC2626]", "text-white", "bg-red-100", "text-red-800", "border", "border-red-300");
       btn.setAttribute("aria-pressed", "false");
       btn.title = "Clique para BLOQUEAR a sincronização automática";
     }

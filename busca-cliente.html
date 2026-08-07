@@ -1243,9 +1243,10 @@
         doc.setFillColor(0, 82, 163);
         doc.rect(0, 0, pw, 17, "F");
         if (reg.serverId) {
-          doc.setFontSize(9);
+          doc.setFontSize(13);
+          doc.setFont("helvetica", "bold");
           doc.setTextColor(255, 255, 255);
-          doc.text("ID: " + reg.serverId, pw - 10, 6, { align: "right" });
+          doc.text("ID: " + reg.serverId, pw - 10, 10.5, { align: "right" });
         }
         if (logo) doc.addImage(logo, "PNG", 10, 1.5, 30, 15);
         doc.setTextColor(255, 255, 255);

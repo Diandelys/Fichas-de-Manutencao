@@ -1703,9 +1703,10 @@ async function gerarFichaPDFBase64(
   doc.rect(0, 0, pageWidth, 17, "F");
 
   if (serverId) {
-    doc.setFontSize(9);
+    doc.setFontSize(13);
+    doc.setFont("helvetica", "bold");
     doc.setTextColor(255, 255, 255);
-    doc.text(`ID: ${serverId}`, pageWidth - 10, 6, { align: "right" });
+    doc.text(`ID: ${serverId}`, pageWidth - 10, 10.5, { align: "right" });
   }
 
   if (logo) doc.addImage(logo, "PNG", 10, 1.5, 30, 15);
@@ -1954,9 +1955,10 @@ async function gerarRelatorioPDFBase64(
   doc.rect(0, 0, pageWidth, 17, "F");
 
   if (serverId) {
-    doc.setFontSize(9);
+    doc.setFontSize(13);
+    doc.setFont("helvetica", "bold");
     doc.setTextColor(255, 255, 255);
-    doc.text(`ID: ${serverId}`, pageWidth - 10, 6, { align: "right" });
+    doc.text(`ID: ${serverId}`, pageWidth - 10, 10.5, { align: "right" });
   }
 
   if (logo) doc.addImage(logo, "PNG", 10, 1.5, 30, 15);

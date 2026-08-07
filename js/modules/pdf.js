@@ -54,9 +54,10 @@ function renderCabecalho(doc, titulo, serverId, logo) {
   doc.rect(0, 0, pw, 17, "F");
 
   if (serverId) {
-    doc.setFontSize(9);
+    doc.setFontSize(13);
+    doc.setFont("helvetica", "bold");
     doc.setTextColor(255, 255, 255);
-    doc.text(`ID: ${serverId}`, pw - 10, 6, { align: "right" });
+    doc.text(`ID: ${serverId}`, pw - 10, 10.5, { align: "right" });
   }
 
   if (logo) {

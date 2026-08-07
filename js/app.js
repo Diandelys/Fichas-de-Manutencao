@@ -139,21 +139,30 @@ async function renderFormulariosSalvosUI() {
       : '<i class="fas fa-clock text-yellow-500" title="Pendente de sincronização"></i>';
 
     const item = document.createElement("div");
-    item.className = "flex justify-between items-center bg-gray-50 p-3 rounded-lg shadow-sm border border-gray-100";
+    item.className = "bg-white p-3.5 rounded-lg shadow-2xs border border-[#E5E7EB] space-y-2.5";
     item.innerHTML = `
-      <div class="flex items-center">
+      <!-- Linha 1: Cliente (Nº de Série) -->
+      <div class="flex items-center space-x-2">
         ${statusIcon}
-        <div class="ml-3">
-          <div class="font-medium text-gray-800">${reg.cliente || "—"} (${reg.equipamento || "—"})</div>
-          <div class="text-xs text-gray-500">${reg.servico || "—"} • ${dataLegivel} • ID: ${reg.serverId || "Pendente"}</div>
+        <div class="font-semibold text-[#0F0E0D] text-sm sm:text-base leading-snug">
+          ${reg.cliente || "—"} <span class="text-xs sm:text-sm font-normal text-[#6B6965]">(Nº de Série: ${reg.numeroSerie || reg.equipamento || "—"})</span>
         </div>
       </div>
-      <div class="flex items-center space-x-2">
-        <button class="pe-btn pe-btn-sm bg-[#16A34A] hover:bg-[#15803D] text-white border-0 shadow-2xs py-1 px-2.5 rounded-md flex items-center justify-center share-btn" data-id="${reg.id}" title="Compartilhar no WhatsApp">
+
+      <!-- Linha 2: Serviço, data e hora, ID -->
+      <div class="text-xs text-[#6B6965] pe-mono pl-6">
+        ${reg.servico || "—"} • ${dataLegivel} • ID: ${reg.serverId || "Pendente"}
+      </div>
+
+      <!-- Linha 3: Botões -->
+      <div class="flex items-center justify-end space-x-2 pt-2 border-t border-[#F3F4F6]">
+        <button class="pe-btn pe-btn-sm bg-[#16A34A] hover:bg-[#15803D] text-white border-0 shadow-2xs py-1 px-3 rounded-md flex items-center justify-center gap-1.5 share-btn" data-id="${reg.id}" title="Compartilhar no WhatsApp">
           <i class="fab fa-whatsapp text-sm"></i>
+          <span class="text-xs font-medium">Compartilhar</span>
         </button>
-        <button class="pe-btn pe-btn-secondary pe-btn-sm border border-[#CBD5E1] hover:border-[#94A3B8] text-[#0F0E0D] font-medium py-1 px-2.5 rounded-md flex items-center gap-1.5 shadow-2xs edit-btn" data-id="${reg.id}">
-          <i class="fas fa-edit text-xs"></i> Editar
+        <button class="pe-btn pe-btn-secondary pe-btn-sm border border-[#CBD5E1] hover:border-[#94A3B8] text-[#0F0E0D] font-medium py-1 px-3 rounded-md flex items-center justify-center gap-1.5 shadow-2xs edit-btn" data-id="${reg.id}">
+          <i class="fas fa-edit text-xs"></i>
+          <span class="text-xs">Editar</span>
         </button>
         <button class="pe-btn pe-btn-sm bg-[#FEF2F2] hover:bg-[#FEE2E2] text-[#DC2626] border border-[#FCA5A5] hover:border-[#F87171] py-1 px-2.5 rounded-md flex items-center justify-center shadow-2xs delete-btn" data-id="${reg.id}" title="Excluir Formulário">
           <i class="fas fa-trash text-xs text-[#DC2626]"></i>

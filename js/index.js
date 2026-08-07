@@ -1228,6 +1228,9 @@ async function salvarFormularioLocal() {
   }
 }
 
+let currentPageSalvosIndex = 1;
+const ITEMS_PER_PAGE_INDEX = 5;
+
 // ======== Renderização da seção de formulários salvos ========
 async function renderFormulariosSalvos() {
   const containerId = "formularios-salvos";
@@ -1261,9 +1264,11 @@ async function renderFormulariosSalvos() {
     <div class="pe-card-body">
       <div id="lista-formularios" class="space-y-3"></div>
     </div>
+    <div id="paginacao-formularios" class="pe-card-footer flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#6B6965]"></div>
   `;
 
   const lista = container.querySelector("#lista-formularios");
+  const paginacao = container.querySelector("#paginacao-formularios");
 
   try {
     const db = await initDB();
@@ -1274,13 +1279,25 @@ async function renderFormulariosSalvos() {
 
     registros.sort((a, b) => b.id - a.id);
 
-    if (registros.length === 0) {
+    const totalItems = registros.length;
+    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE_INDEX) || 1;
+
+    if (currentPageSalvosIndex > totalPages) {
+      currentPageSalvosIndex = totalPages;
+    }
+
+    if (totalItems === 0) {
       lista.innerHTML = `<p class="text-gray-500 text-sm">Nenhum formulário salvo nas últimas 5 semanas.</p>`;
+      if (paginacao) paginacao.style.display = "none";
       return;
     }
 
+    const startIndex = (currentPageSalvosIndex - 1) * ITEMS_PER_PAGE_INDEX;
+    const endIndex = Math.min(startIndex + ITEMS_PER_PAGE_INDEX, totalItems);
+    const itemsPagina = registros.slice(startIndex, endIndex);
+
     // ======== Renderização de itens ========
-    registros.forEach((registro) => {
+    itemsPagina.forEach((registro) => {
       const dataLegivel = new Date(registro.id).toLocaleString("pt-BR");
       const borderClass = registro.sincronizado
         ? "border-l-4 border-l-[#16A34A]"
@@ -1338,10 +1355,61 @@ async function renderFormulariosSalvos() {
         compartilharFormulario(id);
       });
     });
+
+    // ======== Renderização da Paginação ========
+    renderPaginacaoControlIndex(paginacao, totalItems, startIndex, endIndex, currentPageSalvosIndex, totalPages, (newPage) => {
+      currentPageSalvosIndex = newPage;
+      renderFormulariosSalvos();
+    });
   } catch (e) {
     console.error("Erro fatal ao renderizar formulários do IndexedDB:", e);
     lista.innerHTML = `<p class="text-red-500 text-sm">Erro ao carregar lista de formulários. (Verifique a console.)</p>`;
   }
+}
+
+function renderPaginacaoControlIndex(container, totalItems, startIndex, endIndex, currentPage, totalPages, onPageChange) {
+  if (!container) return;
+
+  const infoText = `Mostrando <span class="font-medium text-[#0F0E0D] pe-mono">${startIndex + 1}–${endIndex}</span> de <span class="font-medium text-[#0F0E0D] pe-mono">${totalItems}</span> formulário(s)`;
+
+  let buttonsHTML = "";
+  for (let i = 1; i <= totalPages; i++) {
+    const activeClass = i === currentPage
+      ? "bg-[#1B4F8A] text-white font-semibold shadow-2xs"
+      : "bg-transparent text-[#0F0E0D] hover:bg-[#E5E7EB]";
+    buttonsHTML += `<button class="w-8 h-8 rounded-md flex items-center justify-center text-xs transition-colors page-num-btn ${activeClass}" data-page="${i}">${i}</button>`;
+  }
+
+  container.innerHTML = `
+    <div>${infoText}</div>
+    <nav aria-label="Paginação de formulários" class="flex items-center space-x-1">
+      <button id="page-prev-btn" class="w-8 h-8 rounded-md flex items-center justify-center text-[#6B6965] hover:bg-[#E5E7EB] hover:text-[#0F0E0D] disabled:opacity-40 disabled:cursor-not-allowed transition-colors" ${currentPage === 1 ? "disabled" : ""}>
+        <i class="fas fa-chevron-left text-xs"></i>
+      </button>
+      <div class="hidden sm:flex items-center space-x-1">
+        ${buttonsHTML}
+      </div>
+      <span class="sm:hidden text-xs text-[#6B6965] px-2 pe-mono">Página ${currentPage} de ${totalPages}</span>
+      <button id="page-next-btn" class="w-8 h-8 rounded-md flex items-center justify-center text-[#6B6965] hover:bg-[#E5E7EB] hover:text-[#0F0E0D] disabled:opacity-40 disabled:cursor-not-allowed transition-colors" ${currentPage === totalPages ? "disabled" : ""}>
+        <i class="fas fa-chevron-right text-xs"></i>
+      </button>
+    </nav>
+  `;
+
+  container.querySelector("#page-prev-btn")?.addEventListener("click", () => {
+    if (currentPage > 1) onPageChange(currentPage - 1);
+  });
+
+  container.querySelector("#page-next-btn")?.addEventListener("click", () => {
+    if (currentPage < totalPages) onPageChange(currentPage + 1);
+  });
+
+  container.querySelectorAll(".page-num-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const page = Number(e.currentTarget.dataset.page);
+      if (page && page !== currentPage) onPageChange(page);
+    });
+  });
 }
 
 // ======== Carregamento de formulário para edição ========

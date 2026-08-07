@@ -95,6 +95,9 @@ function setupSyncAndActionButtons() {
 /**
  * Renderiza a lista de formulários salvos no IndexedDB
  */
+let currentPageSalvos = 1;
+const ITEMS_PER_PAGE = 5;
+
 async function renderFormulariosSalvosUI() {
   const containerId = "formularios-salvos";
   let container = document.getElementById(containerId);
@@ -109,6 +112,13 @@ async function renderFormulariosSalvosUI() {
   }
 
   const registros = await getAllFormularios();
+  const totalItems = registros.length;
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE) || 1;
+
+  if (currentPageSalvos > totalPages) {
+    currentPageSalvos = totalPages;
+  }
+
   const pendentes = registros.filter((r) => !r.sincronizado).length;
 
   container.innerHTML = `
@@ -123,16 +133,23 @@ async function renderFormulariosSalvosUI() {
     <div class="pe-card-body">
       <div id="lista-formularios" class="space-y-3"></div>
     </div>
+    <div id="paginacao-formularios" class="pe-card-footer flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#6B6965]"></div>
   `;
 
   const lista = container.querySelector("#lista-formularios");
+  const paginacao = container.querySelector("#paginacao-formularios");
 
-  if (registros.length === 0) {
+  if (totalItems === 0) {
     lista.innerHTML = `<p class="text-gray-500 text-sm">Nenhum formulário salvo recentemente.</p>`;
+    paginacao.style.display = "none";
     return;
   }
 
-  registros.forEach((reg) => {
+  const startIndex = (currentPageSalvos - 1) * ITEMS_PER_PAGE;
+  const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, totalItems);
+  const itemsPagina = registros.slice(startIndex, endIndex);
+
+  itemsPagina.forEach((reg) => {
     const dataLegivel = new Date(reg.id).toLocaleString("pt-BR");
     const borderClass = reg.sincronizado
       ? "border-l-4 border-l-[#16A34A]"
@@ -185,6 +202,56 @@ async function renderFormulariosSalvosUI() {
     });
 
     lista.appendChild(item);
+  });
+
+  renderPaginacaoControlUI(paginacao, totalItems, startIndex, endIndex, currentPageSalvos, totalPages, (newPage) => {
+    currentPageSalvos = newPage;
+    renderFormulariosSalvosUI();
+  });
+}
+
+function renderPaginacaoControlUI(container, totalItems, startIndex, endIndex, currentPage, totalPages, onPageChange) {
+  if (!container) return;
+
+  const infoText = `Mostrando <span class="font-medium text-[#0F0E0D] pe-mono">${startIndex + 1}–${endIndex}</span> de <span class="font-medium text-[#0F0E0D] pe-mono">${totalItems}</span> formulário(s)`;
+
+  let buttonsHTML = "";
+  for (let i = 1; i <= totalPages; i++) {
+    const activeClass = i === currentPage
+      ? "bg-[#1B4F8A] text-white font-semibold shadow-2xs"
+      : "bg-transparent text-[#0F0E0D] hover:bg-[#E5E7EB]";
+    buttonsHTML += `<button class="w-8 h-8 rounded-md flex items-center justify-center text-xs transition-colors page-num-btn ${activeClass}" data-page="${i}">${i}</button>`;
+  }
+
+  container.innerHTML = `
+    <div>${infoText}</div>
+    <nav aria-label="Paginação de formulários" class="flex items-center space-x-1">
+      <button id="page-prev-btn" class="w-8 h-8 rounded-md flex items-center justify-center text-[#6B6965] hover:bg-[#E5E7EB] hover:text-[#0F0E0D] disabled:opacity-40 disabled:cursor-not-allowed transition-colors" ${currentPage === 1 ? "disabled" : ""}>
+        <i class="fas fa-chevron-left text-xs"></i>
+      </button>
+      <div class="hidden sm:flex items-center space-x-1">
+        ${buttonsHTML}
+      </div>
+      <span class="sm:hidden text-xs text-[#6B6965] px-2 pe-mono">Página ${currentPage} de ${totalPages}</span>
+      <button id="page-next-btn" class="w-8 h-8 rounded-md flex items-center justify-center text-[#6B6965] hover:bg-[#E5E7EB] hover:text-[#0F0E0D] disabled:opacity-40 disabled:cursor-not-allowed transition-colors" ${currentPage === totalPages ? "disabled" : ""}>
+        <i class="fas fa-chevron-right text-xs"></i>
+      </button>
+    </nav>
+  `;
+
+  container.querySelector("#page-prev-btn")?.addEventListener("click", () => {
+    if (currentPage > 1) onPageChange(currentPage - 1);
+  });
+
+  container.querySelector("#page-next-btn")?.addEventListener("click", () => {
+    if (currentPage < totalPages) onPageChange(currentPage + 1);
+  });
+
+  container.querySelectorAll(".page-num-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const page = Number(e.currentTarget.dataset.page);
+      if (page && page !== currentPage) onPageChange(page);
+    });
   });
 }
 

@@ -1413,58 +1413,92 @@ async function removerFormularioLocal(id) {
 async function compartilharFormulario(id) {
   try {
     const db = await initDB();
-    const form = await db.get(STORE_NAME, Number(id));
+    let form = await db.get(STORE_NAME, Number(id));
+    if (!form) {
+      form = await db.get(STORE_NAME, id);
+    }
 
-    if (!form || !form.sincronizado || !form.serverId) {
-      showNotification("Formulário não sincronizado", "error");
+    if (!form) {
+      showNotification("Formulário não encontrado no navegador", "error");
       return;
     }
 
+    const materiais = form.materiais || [];
+    const fotos = form.fotos || [];
+    const assinaturas = form.assinaturas || { cliente: null, tecnico: null };
+    const serverId = form.serverId || "Pendente";
+
+    showNotification("Gerando relatórios para compartilhar...", "info");
+
     const fichaBlob = await gerarFichaPDFBase64(
       form,
-      form.materiais,
-      form.fotos,
-      form.assinaturas,
-      form.serverId,
+      materiais,
+      fotos,
+      assinaturas,
+      serverId,
     );
 
     const relatorioBlob = await gerarRelatorioPDFBase64(
       form,
-      form.materiais,
-      form.fotos,
-      form.assinaturas,
-      form.serverId,
+      materiais,
+      fotos,
+      assinaturas,
+      serverId,
     );
 
-    // ======== Conversão para file object ========
-    const fichaFile = new File([fichaBlob], `Ficha_${form.serverId}.pdf`, {
+    const clienteClean = (form.cliente || "cliente").replace(/[^a-zA-Z0-9]/g, "_");
+    const idLabel = form.serverId ? `ID${form.serverId}` : `Form_${form.id}`;
+
+    const fichaFile = new File([fichaBlob], `Ficha_${idLabel}_${clienteClean}.pdf`, {
       type: "application/pdf",
     });
 
-    const relatorioFile = new File(
-      [relatorioBlob],
-      `Relatorio_${form.serverId}.pdf`,
-      { type: "application/pdf" },
-    );
+    const relatorioFile = new File([relatorioBlob], `Relatorio_${idLabel}_${clienteClean}.pdf`, {
+      type: "application/pdf",
+    });
+
+    const textoShare = `*PEXO EXATO SOLUTIONS*\nCliente: ${form.cliente || "-"}\nEquipamento: ${form.equipamento || "-"}\nServiço: ${form.servico || "-"}\nID VPS: ${serverId}`;
 
     if (
       navigator.canShare &&
       navigator.canShare({ files: [fichaFile, relatorioFile] })
     ) {
       await navigator.share({
-        title: `Serviço ${form.serverId}`,
-        text: `Relatório de serviço\nID: ${form.serverId}`,
+        title: `Relatórios - ${form.cliente || "Cliente"}`,
+        text: textoShare,
         files: [fichaFile, relatorioFile],
       });
-    } else {
-      const msg = encodeURIComponent(
-        `Relatório de serviço\nID: ${form.serverId}`,
-      );
-      window.open(`https://wa.me/?text=${msg}`, "_blank");
+      showNotification("Compartilhado no WhatsApp com sucesso!", "success");
+      return;
     }
+
+    // Fallback para navegadores sem suporte a compartilhamento direto de arquivos
+    const linkFicha = URL.createObjectURL(fichaBlob);
+    const a1 = document.createElement("a");
+    a1.href = linkFicha;
+    a1.download = `Ficha_${idLabel}_${clienteClean}.pdf`;
+    document.body.appendChild(a1);
+    a1.click();
+    document.body.removeChild(a1);
+    URL.revokeObjectURL(linkFicha);
+
+    const linkRel = URL.createObjectURL(relatorioBlob);
+    const a2 = document.createElement("a");
+    a2.href = linkRel;
+    a2.download = `Relatorio_${idLabel}_${clienteClean}.pdf`;
+    document.body.appendChild(a2);
+    a2.click();
+    document.body.removeChild(a2);
+    URL.revokeObjectURL(linkRel);
+
+    const msgWA = encodeURIComponent(
+      `${textoShare}\n\n(Os 2 arquivos PDF foram baixados no seu dispositivo para envio no WhatsApp)`
+    );
+    window.open(`https://api.whatsapp.com/send?text=${msgWA}`, "_blank");
   } catch (e) {
+    if (e.name === "AbortError") return;
     console.error("Erro ao compartilhar:", e);
-    showNotification("Erro ao compartilhar", "error");
+    showNotification("Erro ao compartilhar via WhatsApp", "error");
   }
 }
 window.compartilharFormulario = compartilharFormulario;

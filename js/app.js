@@ -165,8 +165,6 @@ async function renderFormulariosSalvosUI() {
       const id = e.currentTarget.dataset.id;
       if (typeof window.compartilharFormulario === "function") {
         window.compartilharFormulario(id);
-      } else {
-        alert("Compartilhando registro ID: " + id);
       }
     });
 
